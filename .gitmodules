@@ -1,0 +1,3 @@
+[submodule "thirdparty/chromebase"]
+	path = thirdparty/chromebase
+	url = https://github.com/WangTingMan/chromebase.git
