@@ -224,7 +224,13 @@
  * between sections within the same file even if it merges many such segments
  * into a single section in the end.
  */
+#ifdef _MSC_VER
+#ifndef Z_DECL_ALIGN
+#define Z_DECL_ALIGN(type) type
+#endif
+#else
 #define Z_DECL_ALIGN(type) __aligned(__alignof(type)) type
+#endif
 
 /* Check if a pointer is aligned for against a specific byte boundary  */
 #define IS_PTR_ALIGNED_BYTES(ptr, bytes) ((((uintptr_t)ptr) % bytes) == 0)

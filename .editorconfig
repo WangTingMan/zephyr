@@ -18,13 +18,17 @@ indent_size = 8
 
 # C
 [*.{c,h}]
-indent_style = tab
-indent_size = 8
+indent_style = space
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
 
 # C++
 [*.{cpp,hpp}]
-indent_style = tab
-indent_size = 8
+indent_style = space
+indent_size = 4
+tab_width = 4
+insert_final_newline = true
 
 # Linker Script
 [*.ld]

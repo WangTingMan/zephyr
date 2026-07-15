@@ -70,6 +70,7 @@ extern "C" {
 #define BT_HCI_VS_FW_VAR_FW_LOADER              0x0003
 #define BT_HCI_VS_FW_VAR_RESCUE_IMG             0x0004
 #define BT_HCI_OP_VS_READ_VERSION_INFO		BT_OP(BT_OGF_VS, 0x0001)
+#pragma pack(1)
 struct bt_hci_rp_vs_read_version_info {
 	uint8_t  status;
 	uint16_t hw_platform;
@@ -361,14 +362,14 @@ struct bt_hci_rp_mesh_get_opts {
 #define BT_HCI_OC_MESH_SET_SCAN_FILTER         0x01
 struct bt_hci_mesh_pattern {
 	uint8_t pattern_len;
-	uint8_t pattern[0];
+	uint8_t pattern[1];
 } __packed;
 
 struct bt_hci_cp_mesh_set_scan_filter {
 	uint8_t      scan_filter;
 	uint8_t      filter_dup;
 	uint8_t      num_patterns;
-	struct    bt_hci_mesh_pattern patterns[0];
+	struct    bt_hci_mesh_pattern patterns[1];
 } __packed;
 struct bt_hci_rp_mesh_set_scan_filter {
 	uint8_t      status;
@@ -459,13 +460,13 @@ struct bt_hci_evt_mesh_scan_report {
 	int8_t         rssi;
 	uint32_t        instant;
 	uint8_t         data_len;
-	uint8_t         data[0];
+	uint8_t         data[1];
 } __packed;
 struct bt_hci_evt_mesh_scanning_report {
 	uint8_t num_reports;
-	struct bt_hci_evt_mesh_scan_report reports[0];
+	struct bt_hci_evt_mesh_scan_report reports[1];
 } __packed;
-
+#pragma pack()
 struct net_buf *hci_vs_err_stack_frame(unsigned int reason, const struct arch_esf *esf);
 struct net_buf *hci_vs_err_trace(const char *file, uint32_t line, uint64_t pc);
 struct net_buf *hci_vs_err_assert(const char *file, uint32_t line);

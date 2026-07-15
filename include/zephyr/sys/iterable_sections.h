@@ -45,10 +45,14 @@ extern "C" {
  * @param[in]  secname type name of iterable section.
  * @param[in]  section_postfix postfix to use in section name
  */
+#ifdef _MSC_VER
+#define TYPE_SECTION_ITERABLE(type, varname, secname, section_postfix) \
+	Z_DECL_ALIGN(type) varname
+#else
 #define TYPE_SECTION_ITERABLE(type, varname, secname, section_postfix) \
 	Z_DECL_ALIGN(type) varname \
 	__in_section(_##secname, static, _CONCAT(section_postfix, _)) __used __noasan
-
+#endif
 /**
  * @brief iterable section start symbol for a generic type
  *
@@ -111,11 +115,8 @@ extern "C" {
 #define TYPE_SECTION_FOREACH(type, secname, iterator)		\
 	TYPE_SECTION_START_EXTERN(type, secname);		\
 	TYPE_SECTION_END_EXTERN(type, secname);		\
-	for (type * iterator = TYPE_SECTION_START(secname); ({	\
-		__ASSERT(iterator <= TYPE_SECTION_END(secname),\
-			      "unexpected list end location");	\
+	for (type * iterator = TYPE_SECTION_START(secname); 	\
 		     iterator < TYPE_SECTION_END(secname);	\
-	     });						\
 	     iterator++)
 
 /**

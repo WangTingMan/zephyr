@@ -598,8 +598,11 @@ extern "C" {
  * @param _length Length of data (in bytes).
  * @param _str    Persistent, raw string.
  */
+#ifdef _MSC_VER
+#define LOG_HEXDUMP_DBG(...)
+#else
 #define LOG_HEXDUMP_DBG(_data, _length, _str) Z_LOG_HEXDUMP(LOG_LEVEL_DBG, _data, _length, (_str))
-
+#endif
 /**
  * @brief Writes an ERROR hexdump message associated with the instance to the
  *        log.
@@ -768,6 +771,9 @@ extern struct k_mem_partition k_log_partition;
  *       In other cases, this macro has no effect.
  * @see LOG_MODULE_DECLARE
  */
+#ifdef _MSC_VER
+#define LOG_MODULE_REGISTER(...)
+#else
 #define LOG_MODULE_REGISTER(...)                                                                   \
 	COND_CODE_1(							\
 		Z_DO_LOG_MODULE_REGISTER(__VA_ARGS__),			\
@@ -776,7 +782,7 @@ extern struct k_mem_partition k_log_partition;
 		() \
 	)                                                                       \
 	LOG_MODULE_DECLARE(__VA_ARGS__)
-
+#endif
 /**
  * @brief Macro for declaring a log module (not registering it).
  *

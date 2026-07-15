@@ -8,8 +8,9 @@
  */
 #include <stdbool.h>
 #include <stdint.h>
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/bluetooth/addr.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>

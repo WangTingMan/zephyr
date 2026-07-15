@@ -20,8 +20,9 @@
 
 #include <stddef.h>
 #include <stdint.h>
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/bluetooth/hci.h>
 #include <zephyr/bluetooth/hci_types.h>
 #include <zephyr/net_buf.h>

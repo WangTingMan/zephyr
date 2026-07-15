@@ -504,7 +504,9 @@ __syscall int sys_clock_nanosleep(int clock_id, int flags, const struct timespec
  */
 
 #ifndef CONFIG_BOARD_UNIT_TESTING
+#ifndef _MSC_VER
 #include <zephyr/syscalls/clock.h>
+#endif
 #endif
 
 #ifdef __cplusplus

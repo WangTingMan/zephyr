@@ -32,27 +32,44 @@
 		     (__sns) = sys_ ## __lname ## _peek_next(__sn);	\
 	     (__sn) != NULL ; (__sn) = (__sns),				\
 		     (__sns) = sys_ ## __lname ## _peek_next(__sn))
-
+#ifdef _MSC_VER
+#define Z_GENLIST_CONTAINER(__ln, type,__cn, __n)				\
+	((__ln) ? CONTAINER_OF((__ln), type, __n) : NULL)
+#else
 #define Z_GENLIST_CONTAINER(__ln, __cn, __n)				\
 	((__ln) ? CONTAINER_OF((__ln), __typeof__(*(__cn)), __n) : NULL)
-
+#endif
+#ifdef _MSC_VER
+#define Z_GENLIST_PEEK_HEAD_CONTAINER(__lname, __l, type, __cn, __n)		\
+	Z_GENLIST_CONTAINER(sys_ ## __lname ## _peek_head(__l), type, __cn, __n)
+#else
 #define Z_GENLIST_PEEK_HEAD_CONTAINER(__lname, __l, __cn, __n)		\
 	Z_GENLIST_CONTAINER(sys_ ## __lname ## _peek_head(__l), __cn, __n)
-
+#endif
+#ifdef _MSC_VER
+#define Z_GENLIST_PEEK_TAIL_CONTAINER(__lname, __l, type, __cn, __n)		\
+	Z_GENLIST_CONTAINER(sys_ ## __lname ## _peek_tail(__l), type, __cn, __n)
+#else
 #define Z_GENLIST_PEEK_TAIL_CONTAINER(__lname, __l, __cn, __n)		\
 	Z_GENLIST_CONTAINER(sys_ ## __lname ## _peek_tail(__l), __cn, __n)
-
-#define Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, __cn, __n)		\
+#endif
+#define Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, type, __cn, __n)		\
 	((__cn) ? Z_GENLIST_CONTAINER(					\
 			sys_ ## __lname ## _peek_next(&((__cn)->__n)),	\
-			__cn, __n) : NULL)
-
+			type, __cn, __n) : NULL)
+#ifdef _MSC_VER
+#define Z_GENLIST_FOR_EACH_CONTAINER(__lname, __l, type, __cn, __n)		\
+	for ((__cn) = Z_GENLIST_PEEK_HEAD_CONTAINER(__lname, __l, type, __cn,	\
+						  __n);			\
+	     (__cn) != NULL;						\
+	     (__cn) = Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, type, __cn, __n))
+#else
 #define Z_GENLIST_FOR_EACH_CONTAINER(__lname, __l, __cn, __n)		\
 	for ((__cn) = Z_GENLIST_PEEK_HEAD_CONTAINER(__lname, __l, __cn,	\
 						  __n);			\
 	     (__cn) != NULL;						\
 	     (__cn) = Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, __cn, __n))
-
+#endif
 #define Z_GENLIST_FOR_EACH_CONTAINER_SAFE(__lname, __l, __cn, __cns, __n)     \
 	for ((__cn) = Z_GENLIST_PEEK_HEAD_CONTAINER(__lname, __l, __cn, __n),   \
 	     (__cns) = Z_GENLIST_PEEK_NEXT_CONTAINER(__lname, __cn, __n); \

@@ -1422,6 +1422,9 @@ DT_FOREACH_STATUS_OKAY_NODE(Z_MAYBE_DEVICE_DECLARE_INTERNAL)
  *
  * @return the pointer to the device API.
  */
+#ifdef _MSC_VER
+#define DEVICE_API_GET(_class, _dev)    Z_DEVICE_API_GET(_class, _dev)
+#else
 #define DEVICE_API_GET(_class, _dev)                                                               \
 	({                                                                                         \
 		IF_ENABLED(CONFIG_DEVICE_API_ASSERT, (                                             \
@@ -1430,11 +1433,12 @@ DT_FOREACH_STATUS_OKAY_NODE(Z_MAYBE_DEVICE_DECLARE_INTERNAL)
 		));                                                                                \
 		Z_DEVICE_API_GET(_class, _dev);                                                    \
 	})
-
+#endif
 #ifdef __cplusplus
 }
 #endif
 
+#ifndef _MSC_VER
 #include <zephyr/syscalls/device.h>
-
+#endif
 #endif /* ZEPHYR_INCLUDE_DEVICE_H_ */

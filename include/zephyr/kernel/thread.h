@@ -14,6 +14,10 @@
 #include <zephyr/kernel/stats.h>
 #include <zephyr/arch/arch_interface.h>
 
+#ifdef _MSC_VER
+#include <zephyr/arch/x86/intel64/thread.h>
+#endif
+
 /**
  * @typedef k_thread_entry_t
  * @brief Thread entry point function type.
@@ -245,6 +249,9 @@ typedef struct k_thread_runtime_stats {
 	 */
 	uint8_t dummy;
 #endif
+#ifdef _MSC_VER
+	uint8_t dummy;
+#endif
 }  k_thread_runtime_stats_t;
 
 struct z_poller {
@@ -375,6 +382,10 @@ struct k_thread {
 	_wait_q_t  halt_queue;
 #endif /* CONFIG_SMP */
 
+#ifdef _MSC_VER
+    uint64_t thread_id;
+    uint16_t has_onwership;
+#endif
 	/** arch-specifics: must always be at the end */
 	struct _thread_arch arch;
 };

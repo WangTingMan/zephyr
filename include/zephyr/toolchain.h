@@ -16,6 +16,8 @@
 #ifndef ZEPHYR_INCLUDE_TOOLCHAIN_H_
 #define ZEPHYR_INCLUDE_TOOLCHAIN_H_
 
+#include <global_configs.h>
+
 /**
  * @addtogroup toolchain
  * @{
@@ -63,6 +65,8 @@
 #include <zephyr/toolchain/llvm.h>
 #elif defined(__GNUC__) || (defined(_LINKER) && defined(__GCC_LINKER_CMD__))
 #include <zephyr/toolchain/gcc.h>
+#elif defined(_MSC_VER)
+#include <zephyr/toolchain/msvc.h>
 #else
 #error "Invalid/unknown toolchain configuration"
 #endif

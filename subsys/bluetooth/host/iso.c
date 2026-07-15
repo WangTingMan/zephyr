@@ -69,7 +69,6 @@ static void iso_rx_buf_destroy(struct net_buf *buf)
 NET_BUF_POOL_FIXED_DEFINE(iso_rx_pool, CONFIG_BT_ISO_RX_BUF_COUNT,
 			  BT_ISO_SDU_BUF_SIZE(CONFIG_BT_ISO_RX_MTU), sizeof(struct bt_conn_rx),
 			  iso_rx_buf_destroy);
-
 static struct bt_iso_recv_info iso_info_data[CONFIG_BT_ISO_RX_BUF_COUNT];
 #define iso_info(buf) (&iso_info_data[net_buf_id(buf)])
 #endif /* CONFIG_BT_ISO_RX */
@@ -1153,7 +1152,7 @@ int bt_iso_chan_disconnect(struct bt_iso_chan *chan)
 
 static bool bt_iso_acl_has_cis(const struct bt_conn *acl)
 {
-	ARRAY_FOR_EACH_PTR(iso_conns, iso_conn) {
+	ARRAY_FOR_EACH_PTR(iso_conns, struct bt_conn, iso_conn) {
 		struct bt_conn *iso = bt_conn_ref(iso_conn);
 
 		if (iso == NULL) {

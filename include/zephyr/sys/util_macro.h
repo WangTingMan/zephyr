@@ -108,8 +108,11 @@ extern "C" {
 #define IS_BIT_SET(value, bit) ((((value) >> (bit)) & (0x1)) != 0)
 
 /** @brief Extract the Least Significant Bit from @p value. */
+#ifdef _MSC_VER
+#define LSB_GET(value) ((value) & (~(value) + 1))
+#else
 #define LSB_GET(value) ((value) & -(value))
-
+#endif
 /**
  * @brief Extract a bitfield element from @p value corresponding to
  *	  the field mask @p mask.

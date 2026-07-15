@@ -282,7 +282,11 @@ static void le_rpa_invalidate(void)
 		if (bt_dev.id_count == 0) {
 			return;
 		}
+		#ifdef _MSC_VER
+		bool rpa_expired_data[10];
+		#else
 		bool rpa_expired_data[bt_dev.id_count];
+		#endif
 		for (uint8_t i = 0; i < bt_dev.id_count; i++) {
 			rpa_expired_data[i] = true;
 		}

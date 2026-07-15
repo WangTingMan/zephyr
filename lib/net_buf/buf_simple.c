@@ -29,6 +29,10 @@ LOG_MODULE_REGISTER(net_buf_simple, CONFIG_NET_BUF_LOG_LEVEL);
 #define NET_BUF_SIMPLE_INFO(fmt, ...)
 #endif /* CONFIG_NET_BUF_SIMPLE_LOG */
 
+#if defined(_MSC_VER) && !defined(UNALIGNED_GET)
+#define UNALIGNED_GET(g) (*(g))
+#endif
+
 void net_buf_simple_init_with_data(struct net_buf_simple *buf,
 				   void *data, size_t size)
 {

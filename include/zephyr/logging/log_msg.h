@@ -20,7 +20,9 @@
 #define alloca __builtin_alloca
 #endif
 #else
+#ifndef _MSC_VER
 #include <alloca.h>
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -89,25 +91,30 @@ struct log_msg_hdr {
 /* Messages are aligned to alignment required by cbprintf package. */
 #define Z_LOG_MSG_ALIGNMENT CBPRINTF_PACKAGE_ALIGNMENT
 
+#ifdef _MSC_VER
+#define Z_LOG_MSG_PADDING 5
+#else
 #define Z_LOG_MSG_PADDING \
 	((sizeof(struct log_msg_hdr) % Z_LOG_MSG_ALIGNMENT) > 0 ? \
 	(Z_LOG_MSG_ALIGNMENT - (sizeof(struct log_msg_hdr) % Z_LOG_MSG_ALIGNMENT)) : \
 		0)
-
+#endif
 struct log_msg {
 	struct log_msg_hdr hdr;
 	/* Adding padding to ensure that cbprintf package that follows is
 	 * properly aligned.
 	 */
 	uint8_t padding[Z_LOG_MSG_PADDING];
-	uint8_t data[];
+	uint8_t data[1];
 };
 
 /**
  * @cond INTERNAL_HIDDEN
  */
+#ifndef _MSC_VER
 BUILD_ASSERT(sizeof(struct log_msg) % Z_LOG_MSG_ALIGNMENT == 0,
 	     "Log msg size must aligned");
+#endif
 /**
  * @endcond
  */
@@ -876,9 +883,9 @@ static inline uint8_t *log_msg_get_package(struct log_msg *msg, size_t *len)
 /**
  * @}
  */
-
+#ifndef _MSC_VER
 #include <zephyr/syscalls/log_msg.h>
-
+#endif
 #ifdef __cplusplus
 }
 #endif

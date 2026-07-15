@@ -5,7 +5,7 @@
 
 #ifndef ZEPHYR_INCLUDE_ARCH_X86_INTEL64_THREAD_H_
 #define ZEPHYR_INCLUDE_ARCH_X86_INTEL64_THREAD_H_
-
+#include <global_configs.h>
 #define X86_THREAD_FLAG_ALL 0x01 /* _thread_arch.flags: entire state saved */
 
 /*
@@ -51,7 +51,7 @@
 /*
  * 64-bit Task State Segment. One defined per CPU.
  */
-
+#pragma pack(1)
 struct x86_tss64 {
 	/*
 	 * Architecturally-defined portion. It is somewhat tedious to
@@ -97,7 +97,7 @@ struct x86_tss64 {
 	char *usp;
 #endif /* CONFIG_USERSPACE */
 } __packed __aligned(8);
-
+#pragma pack()
 typedef struct x86_tss64 x86_tss64_t;
 
 /*

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\subsys\bluetooth\common\addr.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\common\bt_shell_private.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\common\bt_str.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\common\dummy.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\common\long_wq.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\common\rpa.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\controller\crypto\crypto.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\crypto\bt_crypto.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\crypto\bt_crypto_psa.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\addr.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\adv.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\aes_ccm.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\att.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\buf.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\a2dp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\a2dp_codec_sbc.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\at.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\avctp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\avdtp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\avrcp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\avrcp_cover_art.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\bip.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\br.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\conn_br.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\did.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\goep.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\hfp_ag.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\hfp_hf.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\keys_br.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\l2cap_br.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\map.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\obex.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\pbap.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\rfcomm.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\sco.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\sdp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\classic\ssp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\conn.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\crypto_psa.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\cs.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\data.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\direction.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\ecc.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\gatt.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\gatt_gap_svc_validate.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\hci_common.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\hci_core.c">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</PreprocessToFile>
+    </ClCompile>
+    <ClCompile Include="..\..\subsys\bluetooth\host\id.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\iso.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\keys.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\l2cap.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\monitor.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\scan.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\settings.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\smp.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\smp_null.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\host\uuid.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\win\static_sections.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\global_configs.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\assert.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\bt_settings_commit.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\bt_shell_private.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\bt_str.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\hci_common_internal.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\long_wq.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\common\rpa.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\crypto\bt_crypto.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{1bcfb992-823b-49b2-8719-e17a8197b433}</ProjectGuid>
+    <RootNamespace>bluetooth</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(ProjectDir)../../include;$(ProjectDir)../../subsys\bluetooth;$(ProjectDir)../../subsys/bluetooth/controller;$(ProjectDir)../../thirdparty\mbedtls\include;$(ProjectDir)../../thirdparty\sbc\encoder\include;$(ProjectDir)../../thirdparty\sbc\decoder\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ObjectFileName>$(IntDir)%(RelativeDir)</ObjectFileName>
+      <DisableSpecificWarnings>4700;4703</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -8,8 +8,9 @@
 #include <errno.h>
 #include <stdint.h>
 #include <string.h>
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/bluetooth/crypto.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>

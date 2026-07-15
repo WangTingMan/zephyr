@@ -64,8 +64,11 @@
 #define LOG_LEVEL CONFIG_BT_CONN_LOG_LEVEL
 LOG_MODULE_REGISTER(bt_conn);
 
+#ifdef _MSC_VER
+struct k_fifo free_tx;
+#else
 K_FIFO_DEFINE(free_tx);
-
+#endif
 #if defined(CONFIG_BT_CONN_TX_NOTIFY_WQ)
 static struct k_work_q conn_tx_workq;
 static K_KERNEL_STACK_DEFINE(conn_tx_workq_thread_stack, CONFIG_BT_CONN_TX_NOTIFY_WQ_STACK_SIZE);
@@ -108,10 +111,13 @@ static void deferred_work(struct k_work *work);
 static void notify_connected(struct bt_conn *conn);
 
 static struct bt_conn acl_conns[CONFIG_BT_MAX_CONN];
+#ifdef _MSC_VER
+struct net_buf_pool acl_tx_pool[50];
+#else
 NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
 		    BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
+#endif
 #if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_CLASSIC)
 const struct bt_conn_auth_cb *bt_auth;
 sys_slist_t bt_auth_info_cbs = SYS_SLIST_STATIC_INIT(&bt_auth_info_cbs);
@@ -921,7 +927,7 @@ static struct bt_conn *get_conn_ready(void)
 {
 	struct bt_conn *conn, *tmp;
 	sys_snode_t *prev = NULL;
-
+	conn = tmp = NULL;
 	if (dont_have_viewbufs()) {
 		/* We will get scheduled again when the (view) buffers are freed. If you
 		 * hit this a lot, try increasing `CONFIG_BT_CONN_FRAG_COUNT`
@@ -930,7 +936,7 @@ static struct bt_conn *get_conn_ready(void)
 		return NULL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&bt_dev.le.conn_ready, conn, tmp, _conn_ready) {
+	SYS_SLIST_FOR_EACH_CONTAINER_SAFE((&bt_dev.le.conn_ready), conn, tmp, _conn_ready) {
 		__ASSERT_NO_MSG(tmp != conn);
 
 		/* Iterate over the list of connections that have data to send
@@ -1460,8 +1466,11 @@ struct bt_conn *bt_conn_ref(struct bt_conn *conn)
 }
 
 #if defined(CONFIG_BT_CONN)
+#ifdef _MSC_VER
+struct k_sem pending_recycled_events;
+#else
 static K_SEM_DEFINE(pending_recycled_events, 0, K_SEM_MAX_LIMIT);
-
+#endif
 static void recycled_work_handler(struct k_work *work)
 {
 	if (k_sem_take(&pending_recycled_events, K_NO_WAIT) == 0) {
@@ -2242,7 +2251,7 @@ static void deferred_work(struct k_work *work)
 		 * after the CIS has been disconnected from a HCI Disconnect event.
 		 */
 		acl_coupled_with_cis = false;
-		ARRAY_FOR_EACH_PTR(iso_conns, iso_conn) {
+		ARRAY_FOR_EACH_PTR(iso_conns, struct bt_conn, iso_conn) {
 			struct bt_conn *iso = bt_conn_ref(iso_conn);
 
 			if (iso == NULL) {

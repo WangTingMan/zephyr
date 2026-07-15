@@ -31,7 +31,7 @@ extern "C" {
 
 /* Alignment needed for various parts of the buffer definition */
 #if CONFIG_NET_BUF_ALIGNMENT == 0
-#define __net_buf_align __aligned(sizeof(void *))
+#define __net_buf_align __alignof__(sizeof(void *))
 #else
 #define __net_buf_align __aligned(CONFIG_NET_BUF_ALIGNMENT)
 #endif
@@ -1122,7 +1122,7 @@ struct net_buf {
 	};
 
 	/** System metadata for this buffer. Cleared on allocation. */
-	uint8_t user_data[] __net_buf_align;
+	uint8_t user_data[] /*__net_buf_align*/;
 };
 
 /** @cond INTERNAL_HIDDEN */
@@ -1149,6 +1149,11 @@ struct net_buf_data_alloc {
  * This struct is used to represent a pool of network buffers.
  */
 struct net_buf_pool {
+#ifdef _MSC_VER
+    uint32_t this_pool_id;
+    const char* source_file;
+    uint32_t source_line;
+#endif
 	/** LIFO to place the buffer into when free */
 	struct k_lifo free;
 
@@ -1188,16 +1193,24 @@ struct net_buf_pool {
 	struct net_buf * const __bufs;
 };
 
+#ifdef _MSC_VER
+extern void register_net_buf_pool_instance( struct net_buf_pool* instance );
+extern struct net_buf_pool* retrieve_net_buf_pool(uint32_t id);
+#endif
+
 /** @cond INTERNAL_HIDDEN */
 #define NET_BUF_POOL_USAGE_INIT(_pool, _count) \
 	IF_ENABLED(CONFIG_NET_BUF_POOL_USAGE, (.avail_count = ATOMIC_INIT(_count),)) \
 	IF_ENABLED(CONFIG_NET_BUF_POOL_USAGE, (.max_used = 0,)) \
 	IF_ENABLED(CONFIG_NET_BUF_POOL_USAGE, (.name = STRINGIFY(_pool),))
-
+#ifdef _MSC_VER
 #define NET_BUF_POOL_INITIALIZER(_pool, _alloc, _bufs, _count, _ud_size, _destroy) \
 	{                                                                          \
+        .this_pool_id = __COUNTER__,                                       \
+        .source_file = __FILE__,                                           \
+        .source_line = __LINE__,                                           \
 		.free = Z_LIFO_INITIALIZER(_pool.free),                            \
-		.lock = { },                                                       \
+		.lock = {.dummy = 0x00},                                           \
 		.buf_count = _count,                                               \
 		.uninit_count = _count,                                            \
 		.user_data_size = _ud_size,                                        \
@@ -1206,7 +1219,28 @@ struct net_buf_pool {
 		.alloc = _alloc,                                                   \
 		.__bufs = (struct net_buf *)_bufs,                                 \
 	}
+#else
+#define NET_BUF_POOL_INITIALIZER(_pool, _alloc, _bufs, _count, _ud_size, _destroy) \
+	{                                                                          \
+		.free = Z_LIFO_INITIALIZER(_pool.free),                            \
+		.lock = {},                                                       \
+		.buf_count = _count,                                               \
+		.uninit_count = _count,                                            \
+		.user_data_size = _ud_size,                                        \
+		NET_BUF_POOL_USAGE_INIT(_pool, _count)                             \
+		.destroy = _destroy,                                               \
+		.alloc = _alloc,                                                   \
+		.__bufs = (struct net_buf *)_bufs,                                 \
+	}
+#endif
 
+#ifdef _MSC_VER
+#define MINIMAL_SIZE(value) ((value) < 1 ? 1 : (value))
+#define _NET_BUF_ARRAY_DEFINE(_name, _count, _ud_size)					       \
+	struct _net_buf_##_name { uint8_t b[sizeof(struct net_buf)];			       \
+				  uint8_t ud[MINIMAL_SIZE(_ud_size)]; };		               \
+	static struct _net_buf_##_name _net_buf_##_name[_count]
+#else
 #define _NET_BUF_ARRAY_DEFINE(_name, _count, _ud_size)					       \
 	struct _net_buf_##_name { uint8_t b[sizeof(struct net_buf)];			       \
 				  uint8_t ud[_ud_size]; } __net_buf_align;		       \
@@ -1219,7 +1253,7 @@ struct net_buf_pool {
 		     ROUND_UP(sizeof(struct net_buf) + _ud_size, __alignof__(struct net_buf)), \
 		     "Size cannot be determined");					       \
 	static struct _net_buf_##_name _net_buf_##_name[_count] __noinit
-
+#endif
 extern const struct net_buf_data_alloc net_buf_heap_alloc;
 /** @endcond */
 
@@ -1295,6 +1329,28 @@ extern const struct net_buf_data_cb net_buf_fixed_cb;
  * @param _ud_size   User data space to reserve per buffer.
  * @param _destroy   Optional destroy callback when buffer is freed.
  */
+#ifdef _MSC_VER
+#define NET_BUF_POOL_FIXED_DEFINE(_name, _count, _data_size, _ud_size, _destroy)    \
+	_NET_BUF_ARRAY_DEFINE(_name, _count, _ud_size);                                 \
+	static uint8_t net_buf_data_##_name[_count][_data_size];                        \
+	static const struct net_buf_pool_fixed net_buf_fixed_##_name = {                \
+		.data_pool = (uint8_t *)net_buf_data_##_name,                               \
+	};                                                                              \
+	static const struct net_buf_data_alloc net_buf_fixed_alloc_##_name = {          \
+		.cb = &net_buf_fixed_cb,                                                    \
+		.alloc_data = (void *)&net_buf_fixed_##_name,                               \
+		.max_alloc_size = _data_size,                                               \
+	};                                                                              \
+	static STRUCT_SECTION_ITERABLE(net_buf_pool, _name) =                           \
+		NET_BUF_POOL_INITIALIZER(_name, &net_buf_fixed_alloc_##_name,               \
+					 _net_buf_##_name, _count, _ud_size,                            \
+					 _destroy);                                                     \
+    static void _CONCAT(_name, __LINE__)()                                          \
+    {                                                                               \
+        register_net_buf_pool_instance( &_name );                                   \
+    }                                                                               \
+    REGISTER_PRE_MAIN( _CONCAT( _name, __LINE__ ) )
+#else
 #define NET_BUF_POOL_FIXED_DEFINE(_name, _count, _data_size, _ud_size, _destroy) \
 	_NET_BUF_ARRAY_DEFINE(_name, _count, _ud_size);                        \
 	static uint8_t __noinit net_buf_data_##_name[_count][_data_size] __net_buf_align; \
@@ -1310,7 +1366,7 @@ extern const struct net_buf_data_cb net_buf_fixed_cb;
 		NET_BUF_POOL_INITIALIZER(_name, &net_buf_fixed_alloc_##_name,  \
 					 _net_buf_##_name, _count, _ud_size,   \
 					 _destroy)
-
+#endif
 /** @cond INTERNAL_HIDDEN */
 extern const struct net_buf_data_cb net_buf_var_cb;
 /** @endcond */

@@ -25,8 +25,9 @@
 #include <string.h>
 
 #include <sys/types.h>
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/bluetooth/addr.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/uuid.h>

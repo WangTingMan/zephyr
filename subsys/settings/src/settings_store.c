@@ -53,7 +53,7 @@ int settings_load_subtree(const char *subtree)
 	 *    commit all
 	 */
 	settings_lock_take();
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, cs, cs_next) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, struct settings_store, cs, cs_next) {
 		cs->cs_itf->csi_load(cs, &arg);
 	}
 	rc = settings_commit_subtree(subtree);
@@ -80,7 +80,7 @@ int settings_load_subtree_direct(
 	 *    commit all
 	 */
 	settings_lock_take();
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, cs, cs_next) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, struct settings_store, cs, cs_next) {
 		cs->cs_itf->csi_load(cs, &arg);
 	}
 	settings_lock_release();
@@ -144,7 +144,7 @@ ssize_t settings_get_val_len(const char *name)
 	 * get the value's length.
 	 */
 	settings_lock_take();
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, cs, cs_next) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, struct settings_store, cs, cs_next) {
 		if (cs->cs_itf->csi_get_val_len) {
 			val_len = cs->cs_itf->csi_get_val_len(cs, name);
 		} else {
@@ -177,7 +177,7 @@ ssize_t settings_load_one(const char *name, void *buf, size_t buf_len)
 	 * Otherwise, use the csi_load() function to load the key/value pair
 	 */
 	settings_lock_take();
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, cs, cs_next) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_load_srcs, struct settings_store, cs, cs_next) {
 		if (cs->cs_itf->csi_load_one) {
 			rc = cs->cs_itf->csi_load_one(cs, name, (char *)buf, buf_len);
 			val_len = (rc >= 0) ? rc : 0;

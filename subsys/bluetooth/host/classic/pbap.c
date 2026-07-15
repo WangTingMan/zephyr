@@ -41,10 +41,8 @@ LOG_MODULE_REGISTER(bt_pbap);
 #define PBAP_POOL_BUF_SIZE                                                                         \
 	MAX(BT_RFCOMM_BUF_SIZE(CONFIG_BT_GOEP_RFCOMM_MTU),                                         \
 	    BT_L2CAP_BUF_SIZE(CONFIG_BT_GOEP_L2CAP_MTU))
-
 NET_BUF_POOL_FIXED_DEFINE(bt_pbap_pool, CONFIG_BT_MAX_CONN, PBAP_POOL_BUF_SIZE,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
 static const struct bt_uuid_128 *pbap_uuid = BT_PBAP_UUID;
 
 #define PBAP_REQUIRED_HDR(_count, _hdrs)                                                           \

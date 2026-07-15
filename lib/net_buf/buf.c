@@ -57,16 +57,23 @@ STRUCT_SECTION_START_EXTERN(net_buf_pool);
 
 struct net_buf_pool *net_buf_pool_get(int id)
 {
-	struct net_buf_pool *pool;
-
+	struct net_buf_pool *pool = NULL;
+#ifdef _MSC_VER
+    pool = retrieve_net_buf_pool(id);
+#else
 	STRUCT_SECTION_GET(net_buf_pool, id, &pool);
-
+#endif
 	return pool;
 }
 
 static int pool_id(struct net_buf_pool *pool)
 {
+#ifdef _MSC_VER
+    /*we just use only one pool for windows*/
+    return pool->this_pool_id;
+#else
 	return pool - TYPE_SECTION_START(net_buf_pool);
+#endif
 }
 
 int net_buf_id(const struct net_buf *buf)

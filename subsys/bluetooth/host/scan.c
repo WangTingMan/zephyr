@@ -4,6 +4,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <global_configs.h>
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -68,7 +69,11 @@ static struct scanner_state scan_state;
 
 #if defined(CONFIG_BT_EXT_ADV)
 /* A buffer used to reassemble advertisement data from the controller. */
+#ifdef _MSC_VER
+struct net_buf_simple ext_scan_buf;
+#else
 NET_BUF_SIMPLE_DEFINE(ext_scan_buf, CONFIG_BT_EXT_SCAN_BUF_SIZE);
+#endif
 #define REASSEMBLY_TIMEOUT K_MSEC(CONFIG_BT_EXT_ADV_REASSEMBLY_TIMEOUT)
 
 #if defined(CONFIG_BT_TESTING)
@@ -672,6 +677,8 @@ static void le_adv_recv(bt_addr_le_t *addr, struct bt_le_scan_recv_info *info,
 	LOG_DBG("%s event %u, len %u, rssi %d dBm", bt_addr_le_str(addr), info->adv_type, len,
 		info->rssi);
 
+	listener = NULL;
+	next = NULL;
 	if (!IS_ENABLED(CONFIG_BT_PRIVACY) && !IS_ENABLED(CONFIG_BT_SCAN_WITH_IDENTITY) &&
 	    explicit_scan && (info->adv_props & BT_HCI_LE_ADV_PROP_DIRECT)) {
 		LOG_DBG("Dropped direct adv report");
@@ -1761,7 +1768,13 @@ void bt_hci_le_adv_report(struct net_buf *buf)
 		adv_info.primary_phy = BT_GAP_LE_PHY_1M;
 		adv_info.secondary_phy = 0;
 		adv_info.tx_power = BT_GAP_TX_POWER_INVALID;
+        #ifdef _MSC_VER
+        uint8_t* p = (uint8_t*)(evt);
+        p += sizeof( *evt );
+        adv_info.rssi = p[evt->length];
+        #else
 		adv_info.rssi = evt->data[evt->length];
+        #endif
 		adv_info.sid = BT_GAP_SID_INVALID;
 		adv_info.interval = 0U;
 

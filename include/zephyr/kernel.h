@@ -34,7 +34,7 @@ extern "C" {
  */
 BUILD_ASSERT(sizeof(int32_t) == sizeof(int));
 BUILD_ASSERT(sizeof(int64_t) == sizeof(long long));
-BUILD_ASSERT(sizeof(intptr_t) == sizeof(long));
+BUILD_ASSERT(sizeof(intptr_t) == sizeof( int64_t ));
 
 /**
  * @brief Kernel APIs
@@ -126,6 +126,10 @@ static inline void
 
 typedef void (*k_thread_user_cb_t)(const struct k_thread *thread,
 				   void *user_data);
+
+#ifdef _MSC_VER
+void k_kernel_init();
+#endif
 
 /**
  * @brief Iterate over all the threads in the system.
@@ -2291,6 +2295,9 @@ static inline uint64_t k_cycle_get_64(void)
  * All the members are internal and should not be accessed directly.
  */
 struct k_queue {
+#ifdef _MSC_VER
+    uint16_t underlying_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -2309,6 +2316,15 @@ struct k_queue {
 /**
  * @cond INTERNAL_HIDDEN
  */
+#ifdef _MSC_VER
+#define Z_QUEUE_INITIALIZER(obj) \
+	{ \
+	.data_q = SYS_SFLIST_STATIC_INIT(&obj.data_q), \
+	.lock = { .dummy = 0x00 }, \
+	.wait_q = Z_WAIT_Q_INIT(&obj.wait_q),	\
+	Z_POLL_EVENT_OBJ_INIT(obj)		\
+	}
+#else
 #define Z_QUEUE_INITIALIZER(obj) \
 	{ \
 	.data_q = SYS_SFLIST_STATIC_INIT(&obj.data_q), \
@@ -2316,6 +2332,7 @@ struct k_queue {
 	.wait_q = Z_WAIT_Q_INIT(&obj.wait_q),	\
 	Z_POLL_EVENT_OBJ_INIT(obj)		\
 	}
+#endif
 /**
  * INTERNAL_HIDDEN @endcond
  */
@@ -2968,6 +2985,20 @@ struct k_fifo {
  *
  * @param fifo Address of the FIFO queue.
  */
+#ifdef _MSC_VER
+inline void msvc_k_fifo_init( struct k_fifo* fifo )
+{
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER( k_fifo, init, fifo );
+
+	k_queue_init( &fifo->_queue );
+
+	K_OBJ_CORE_INIT( K_OBJ_CORE( fifo ), _obj_type_fifo );
+	K_OBJ_CORE_LINK( K_OBJ_CORE( fifo ) );
+
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT( k_fifo, init, fifo );
+}
+#define k_fifo_init(fifo) msvc_k_fifo_init(fifo)
+#else
 #define k_fifo_init(fifo)                                    \
 	({                                                   \
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, init, fifo); \
@@ -2976,7 +3007,7 @@ struct k_fifo {
 	K_OBJ_CORE_LINK(K_OBJ_CORE(fifo));                   \
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, init, fifo);  \
 	})
-
+#endif
 /**
  * @brief Cancel waiting on a FIFO queue.
  *
@@ -3007,6 +3038,19 @@ struct k_fifo {
  * @param fifo Address of the FIFO.
  * @param data Address of the data item.
  */
+#ifdef _MSC_VER
+static inline void msvc_k_fifo_put( struct k_fifo* fifo, void* data )
+{
+	void* _data = data;
+
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER( k_fifo, put, fifo, _data );
+
+	k_queue_append( &fifo->_queue, _data );
+
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT( k_fifo, put, fifo, _data );
+}
+#define k_fifo_put(fifo, data) msvc_k_fifo_put(fifo, data)
+#else
 #define k_fifo_put(fifo, data) \
 	({ \
 	void *_data = data; \
@@ -3014,7 +3058,7 @@ struct k_fifo {
 	k_queue_append(&(fifo)->_queue, _data); \
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, put, fifo, _data); \
 	})
-
+#endif
 /**
  * @brief Add an element to a FIFO queue.
  *
@@ -3098,6 +3142,19 @@ struct k_fifo {
  * @return Address of the data item if successful; NULL if returned
  * without waiting, or waiting period timed out.
  */
+#ifdef _MSC_VER
+static inline void* msvc_k_fifo_get( struct k_fifo* fifo, k_timeout_t timeout )
+{
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER( k_fifo, get, fifo, timeout );
+
+	void* fg_ret = k_queue_get( &fifo->_queue, timeout );
+
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT( k_fifo, get, fifo, timeout, fg_ret );
+
+	return fg_ret;
+}
+#define k_fifo_get(fifo, timeout) msvc_k_fifo_get(fifo, timeout)
+#else
 #define k_fifo_get(fifo, timeout) \
 	({ \
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, get, fifo, timeout); \
@@ -3105,7 +3162,7 @@ struct k_fifo {
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, get, fifo, timeout, fg_ret); \
 	fg_ret; \
 	})
-
+#endif
 /**
  * @brief Query a FIFO queue to see if it has data available.
  *
@@ -3135,6 +3192,9 @@ struct k_fifo {
  *
  * @return Head element, or NULL if the FIFO queue is empty.
  */
+#ifdef _MSC_VER
+#define k_fifo_peek_head(fifo)  k_queue_peek_head(&(fifo)->_queue)
+#else
 #define k_fifo_peek_head(fifo) \
 	({ \
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, peek_head, fifo); \
@@ -3142,7 +3202,7 @@ struct k_fifo {
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, peek_head, fifo, fph_ret); \
 	fph_ret; \
 	})
-
+#endif
 /**
  * @brief Peek element at the tail of FIFO queue.
  *
@@ -3240,6 +3300,15 @@ struct k_lifo {
  * @param lifo Address of the LIFO queue.
  * @param data Address of the data item.
  */
+#ifdef _MSC_VER
+#define k_lifo_put(lifo, data) \
+        do { \
+            void *_data = (data); \
+            SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, put, lifo, _data); \
+            k_queue_prepend(&(lifo)->_queue, _data); \
+            SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, put, lifo, _data); \
+        } while(0)
+#else
 #define k_lifo_put(lifo, data) \
 	({ \
 	void *_data = data; \
@@ -3247,7 +3316,7 @@ struct k_lifo {
 	k_queue_prepend(&(lifo)->_queue, _data); \
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, put, lifo, _data); \
 	})
-
+#endif
 /**
  * @brief Add an element to a LIFO queue.
  *
@@ -3290,6 +3359,15 @@ struct k_lifo {
  * @return Address of the data item if successful; NULL if returned
  * without waiting, or waiting period timed out.
  */
+#ifdef _MSC_VER
+inline void* k_lifo_get( struct k_lifo* lifo, k_timeout_t timeout)
+	{
+	    SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, get, lifo, timeout);
+	    void *lg_ret = k_queue_get(&(lifo)->_queue, timeout);
+	    SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, get, lifo, timeout, lg_ret);
+	    return lg_ret;
+	}
+#else
 #define k_lifo_get(lifo, timeout) \
 	({ \
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, get, lifo, timeout); \
@@ -3297,7 +3375,7 @@ struct k_lifo {
 	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, get, lifo, timeout, lg_ret); \
 	lg_ret; \
 	})
-
+#endif
 /**
  * @brief Statically define and initialize a LIFO queue.
  *
@@ -3474,6 +3552,12 @@ extern struct k_work_q k_sys_work_q;
  * All the members are internal and should not be accessed directly.
  */
 struct k_mutex {
+#ifdef CONFIG_OBJ_CORE_MUTEX
+    struct k_obj_core obj_core;
+#endif
+#ifdef _MSC_VER
+    uint16_t underlying_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -3490,9 +3574,6 @@ struct k_mutex {
 
 	SYS_PORT_TRACING_TRACKING_FIELD(k_mutex)
 
-#ifdef CONFIG_OBJ_CORE_MUTEX
-	struct k_obj_core obj_core;
-#endif
 /**
  * INTERNAL_HIDDEN @endcond
  */
@@ -3503,6 +3584,7 @@ struct k_mutex {
  */
 #define Z_MUTEX_INITIALIZER(obj) \
 	{ \
+    .underlying_id = 0, \
 	.wait_q = Z_WAIT_Q_INIT(&(obj).wait_q), \
 	.owner = NULL, \
 	.lock_count = 0, \
@@ -3599,7 +3681,9 @@ struct k_condvar {
  * @cond INTERNAL_HIDDEN
  */
 	_wait_q_t wait_q;
-
+#ifdef _MSC_VER
+    uint16_t underlying_id;
+#endif
 #ifdef CONFIG_OBJ_CORE_CONDVAR
 	struct k_obj_core  obj_core;
 #endif
@@ -3611,10 +3695,18 @@ struct k_condvar {
 /**
  * @cond INTERNAL_HIDDEN
  */
+#ifdef _MSC_VER
+#define Z_CONDVAR_INITIALIZER(obj)                                             \
+	{                                                                      \
+        .underlying_id = 0,                                            \
+		.wait_q = Z_WAIT_Q_INIT(&obj.wait_q),                          \
+	}
+#else
 #define Z_CONDVAR_INITIALIZER(obj)                                             \
 	{                                                                      \
 		.wait_q = Z_WAIT_Q_INIT(&obj.wait_q),                          \
 	}
+#endif
 /**
  * INTERNAL_HIDDEN @endcond
  */
@@ -3706,7 +3798,7 @@ struct k_sem {
 	_wait_q_t wait_q;
 	unsigned int count;
 	unsigned int limit;
-
+    uint16_t underlying_id;
 	Z_DECL_POLL_EVENT
 
 	SYS_PORT_TRACING_TRACKING_FIELD(k_sem)
@@ -4598,6 +4690,9 @@ enum {
  * All the members are internal and should not be accessed directly.
  */
 struct k_work {
+#ifdef _MSC_VER
+    uint16_t underlying_mutex_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -6020,9 +6115,21 @@ struct k_mem_slab {
  * @param type Type of each memory block.
  * @param slab_num_blocks Number of memory blocks.
  */
+#ifdef _MSC_VER
+#define Z_MSVC_ALIGNOF(type) _Alignof(type)
+#define K_MEM_SLAB_DEFINE_STATIC_LOCAL(name, block_size, num_blocks_, alignment) \
+        static __declspec(align(alignment)) uint8_t _slab_buf_##name[(block_size) * (num_blocks_)]; \
+        static struct k_mem_slab name = { \
+            .buffer = _slab_buf_##name, \
+            .num_blocks = num_blocks_, \
+            .block_size = block_size, \
+        }
+#define K_MEM_SLAB_DEFINE_STATIC_TYPE(name, type, slab_num_blocks) \
+        K_MEM_SLAB_DEFINE_STATIC_LOCAL(name, sizeof(type), slab_num_blocks, Z_MSVC_ALIGNOF(type))
+#else
 #define K_MEM_SLAB_DEFINE_STATIC_TYPE(name, type, slab_num_blocks)                                 \
 	K_MEM_SLAB_DEFINE_STATIC(name, sizeof(type), slab_num_blocks, __alignof(type))
-
+#endif
 /**
  * @brief Initialize a memory slab.
  *
@@ -6326,8 +6433,9 @@ void k_heap_free(struct k_heap *h, void *mem) __attribute_nonnull(1);
  * Heap sizing constants computed at build time from actual struct layouts
  * in lib/heap/heap_constants.c via the gen_offset mechanism.
  */
+#ifndef _MSC_VER
 #include <zephyr/heap_constants.h>
-
+#endif
 /* chunk0 size in bytes for nb buckets (includes trailer metadata) */
 #define _Z_HEAP_C0(nb) \
 	(ROUND_UP(___z_heap_struct_SIZEOF + \
@@ -7146,8 +7254,9 @@ void k_sys_runtime_stats_disable(void);
 #endif
 
 #include <zephyr/tracing/tracing.h>
+#ifndef _MSC_VER
 #include <zephyr/syscalls/kernel.h>
-
+#endif
 #endif /* !_ASMLANGUAGE */
 
 #endif /* ZEPHYR_INCLUDE_KERNEL_H_ */

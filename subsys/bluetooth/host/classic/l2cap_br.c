@@ -180,11 +180,9 @@ enum {
 
 static sys_slist_t br_servers;
 
-
 /* Pool for outgoing BR/EDR signaling packets, min MTU is 48 */
 NET_BUF_POOL_FIXED_DEFINE(br_sig_pool, CONFIG_BT_MAX_CONN, BT_L2CAP_BUF_SIZE(L2CAP_BR_MIN_MTU),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
 #if defined(CONFIG_BT_L2CAP_RET_FC)
 static void br_tx_buf_destroy(struct net_buf *buf)
 {
@@ -195,7 +193,6 @@ static void br_tx_buf_destroy(struct net_buf *buf)
 	/* Kick the TX processor to send the rest of the frags. */
 	bt_tx_irq_raise();
 }
-
 /* Pool for outgoing BR/EDR RET/FC transmit PDUs (I-frames/S-frames) */
 NET_BUF_POOL_FIXED_DEFINE(br_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
 			  BT_L2CAP_RT_FC_MAX_SDU_BUF_SIZE(CONFIG_BT_L2CAP_MPS),
@@ -226,7 +223,7 @@ struct bt_l2cap_chan *bt_l2cap_br_lookup_rx_cid(struct bt_conn *conn,
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BR_CHAN(chan)->rx.cid == cid) {
 			return chan;
 		}
@@ -240,7 +237,7 @@ struct bt_l2cap_chan *bt_l2cap_br_lookup_tx_cid(struct bt_conn *conn,
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BR_CHAN(chan)->tx.cid == cid) {
 			return chan;
 		}
@@ -2074,7 +2071,7 @@ static struct bt_l2cap_server *l2cap_br_server_lookup_psm(uint16_t psm)
 {
 	struct bt_l2cap_server *server;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&br_servers, server, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&br_servers, struct bt_l2cap_server, server, node) {
 		if (server->psm == psm) {
 			return server;
 		}
@@ -3909,7 +3906,7 @@ bt_security_t bt_l2cap_br_get_max_sec_level(void)
 	struct bt_l2cap_server *server;
 	bt_security_t sec_level = BT_SECURITY_L0;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&br_servers, server, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&br_servers, struct bt_l2cap_server, server, node) {
 		if (sec_level < server->sec_level) {
 			sec_level = server->sec_level;
 		}
@@ -4775,7 +4772,7 @@ static struct bt_l2cap_br_chan *l2cap_br_remove_tx_cid(struct bt_conn *conn, uin
 		return NULL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BR_CHAN(chan)->tx.cid == cid) {
 			sys_slist_remove(&conn->channels, prev, &chan->node);
 			return BR_CHAN(chan);
@@ -5131,7 +5128,7 @@ static struct bt_l2cap_br_chan *bt_l2cap_br_lookup_ident(struct bt_conn *conn, u
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BR_CHAN(chan)->ident == ident) {
 			return BR_CHAN(chan);
 		}
@@ -5158,7 +5155,7 @@ static void l2cap_br_echo_req(struct bt_l2cap_br *l2cap, uint8_t ident, struct n
 	struct bt_conn *conn = l2cap->chan.chan.conn;
 	struct bt_l2cap_br_echo_cb *callback;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&bt_l2cap_br_echo_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&bt_l2cap_br_echo_cbs, struct bt_l2cap_br_echo_cb, callback, _node) {
 		if (callback->req) {
 			callback->req(conn, ident, buf);
 		}
@@ -5175,7 +5172,7 @@ static void l2cap_br_echo_rsp(struct bt_l2cap_br *l2cap, uint8_t ident, struct n
 		goto failed;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&bt_l2cap_br_echo_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&bt_l2cap_br_echo_cbs, struct bt_l2cap_br_echo_cb, callback, _node) {
 		if (callback->rsp) {
 			callback->rsp(conn, buf);
 		}
@@ -5358,7 +5355,7 @@ void l2cap_br_encrypt_change(struct bt_conn *conn, uint8_t hci_status)
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		l2cap_br_conn_pend(chan, hci_status);
 
 		if (chan->conn == NULL) {

@@ -43,11 +43,9 @@ struct reassembly_buf_meta_data {
 };
 
 static void clear_on_disconnect(struct bt_conn *conn, uint8_t reason);
-
 NET_BUF_POOL_FIXED_DEFINE(reassembly_buf_pool, CONFIG_BT_CHANNEL_SOUNDING_REASSEMBLY_BUFFER_CNT,
 			  CONFIG_BT_CHANNEL_SOUNDING_REASSEMBLY_BUFFER_SIZE,
 			  sizeof(struct reassembly_buf_meta_data), NULL);
-
 static sys_slist_t reassembly_bufs = SYS_SLIST_STATIC_INIT(&reassembly_bufs);
 
 struct bt_conn_le_cs_subevent_result reassembled_result;

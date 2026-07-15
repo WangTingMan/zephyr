@@ -5,14 +5,18 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/kernel.h>
 #include <zephyr/init.h>
 #include <zephyr/kernel/thread_stack.h>
 #include <zephyr/sys_clock.h>
-
+#ifdef _MSC_VER
+struct z_thread_stack_element bt_lw_stack_area[2048];
+#else
 K_THREAD_STACK_DEFINE(bt_lw_stack_area, CONFIG_BT_LONG_WQ_STACK_SIZE);
+#endif
 static struct k_work_q bt_long_wq;
 
 int bt_long_wq_schedule(struct k_work_delayable *dwork, k_timeout_t timeout)
@@ -43,5 +47,6 @@ static int long_wq_init(void)
 
 	return 0;
 }
-
+#ifndef _MSC_VER
 SYS_INIT(long_wq_init, POST_KERNEL, CONFIG_BT_LONG_WQ_INIT_PRIO);
+#endif

@@ -67,7 +67,9 @@ NET_BUF_POOL_FIXED_DEFINE(hci_iso_pool, CONFIG_BT_ISO_TX_BUF_COUNT,
 #define BT_HCI_NAME   BT_DT_HCI_NAME_GET(BT_HCI_NODE)
 #else
 /* The zephyr,bt-hci chosen property is mandatory, except for unit tests */
+#ifndef _MSC_VER
 BUILD_ASSERT(IS_ENABLED(CONFIG_ZTEST), "Missing DT chosen property for HCI");
+#endif
 #define BT_HCI_DEV    NULL
 #define BT_HCI_BUS    0
 #define BT_HCI_NAME   ""

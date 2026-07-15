@@ -250,9 +250,9 @@ static inline uint8_t log_backend_id_get(const struct log_backend *const backend
 static inline const struct log_backend *log_backend_get(uint32_t idx)
 {
 	const struct log_backend *backend;
-
+#ifndef _MSC_VER
 	STRUCT_SECTION_GET(log_backend, idx, &backend);
-
+#endif
 	return backend;
 }
 
@@ -264,9 +264,9 @@ static inline const struct log_backend *log_backend_get(uint32_t idx)
 static inline int log_backend_count_get(void)
 {
 	int cnt;
-
+#ifndef _MSC_VER
 	STRUCT_SECTION_COUNT(log_backend, &cnt);
-
+#endif
 	return cnt;
 }
 

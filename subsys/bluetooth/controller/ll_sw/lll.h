@@ -451,7 +451,7 @@ struct node_rx_pdu {
 #endif /* CONFIG_BT_CTLR_RX_PDU_META */
 	};
 	union {
-		uint8_t    pdu[0] __aligned(4);
+		uint8_t    pdu[] /*__aligned(4)*/;
 	};
 };
 

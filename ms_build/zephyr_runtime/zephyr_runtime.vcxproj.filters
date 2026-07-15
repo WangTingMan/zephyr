@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="standard_win_usb">
+      <UniqueIdentifier>{c86dcc7e-0a6c-47b3-8fc5-bf7f3524d115}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\win\atomic_impl.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\atomic_c.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\kernel_support.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\kernel_support_impl.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\settings_support.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\mutex_support_impl.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\filesystem_support.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\message_loop_thread.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\hardware\chipset_initializer.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\hardware\intel_bluetooth_chipset_initializer_gen1.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\hardware\intel_bluetooth_chipset_initializer_gen3.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\hardware\log.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\hardware\realtek_bluetooth_chipset_initializer.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\BluetoothStack\stack\hci\windows\windows_usb_transport.cpp">
+      <Filter>standard_win_usb</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\hci.cc">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\zephyr_bt_hci.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\static_list.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\win\queue_support_impl.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\zephyr\win\atomic_impl.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\kernel_support_impl.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\mutex_support.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\message_loop_thread.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\chipset_initializer.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\intel_bluetooth_chipset_initializer_gen1.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\intel_bluetooth_chipset_initializer_gen3.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\intel_bluetooth_defines.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\log.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\realtek_bluetooth_chipset_initializer.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\BluetoothStack\stack\hci\windows\windows_usb_transport.h">
+      <Filter>standard_win_usb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\queue_support_impl.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

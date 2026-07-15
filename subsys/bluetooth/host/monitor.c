@@ -49,8 +49,12 @@
 #define BT_LOG_INFO     6
 #define BT_LOG_DBG      7
 
+#ifdef _MSC_VER
+#define  MONITOR_TS_FREQ sys_clock_hw_cycles_per_sec()
+#else
 /* TS resolution is 1/10th of a millisecond */
 #define MONITOR_TS_FREQ 10000
+#endif
 
 /* Maximum (string) length of a log message */
 #define MONITOR_MSG_MAX 128
@@ -248,10 +252,10 @@ void bt_monitor_send(uint16_t opcode, const void *data, size_t len)
 	}
 
 	encode_hdr(&hdr, monitor_ts_get(), opcode, len);
-
+#ifndef _MSC_VER
 	monitor_send(&hdr, BT_MONITOR_BASE_HDR_LEN + hdr.hdr_len);
 	monitor_send(data, len);
-
+#endif
 	atomic_clear_bit(&flags, BT_LOG_BUSY);
 }
 
@@ -368,7 +372,7 @@ static void monitor_log_process(const struct log_backend *const backend,
 
 	user_log.priority = monitor_priority_get(log_msg_get_level(&msg->log));
 	user_log.ident_len = sizeof(id);
-
+#ifndef _MSC_VER
 	monitor_send(&hdr, BT_MONITOR_BASE_HDR_LEN + hdr.hdr_len);
 	monitor_send(&user_log, sizeof(user_log));
 	monitor_send(id, sizeof(id));
@@ -376,6 +380,7 @@ static void monitor_log_process(const struct log_backend *const backend,
 
 	/* Terminate the string with null */
 	poll_out('\0');
+#endif
 
 	atomic_clear_bit(&flags, BT_LOG_BUSY);
 }
@@ -426,5 +431,6 @@ static int bt_monitor_init(void)
 
 	return 0;
 }
-
+#ifndef _MSC_VER
 SYS_INIT(bt_monitor_init, PRE_KERNEL_1, MONITOR_INIT_PRIORITY);
+#endif

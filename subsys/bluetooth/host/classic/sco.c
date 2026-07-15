@@ -82,7 +82,7 @@ static void notify_connected(struct bt_conn *conn)
 {
 	struct bt_sco_conn_cb *callback;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&sco_conn_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sco_conn_cbs, struct bt_sco_conn_cb, callback, _node) {
 		if (callback->connected) {
 			callback->connected(conn, conn->err);
 		}
@@ -99,7 +99,7 @@ static void notify_disconnected(struct bt_conn *conn)
 {
 	struct bt_sco_conn_cb *callback;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&sco_conn_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sco_conn_cbs, struct bt_sco_conn_cb, callback, _node) {
 		if (callback->disconnected) {
 			callback->disconnected(conn, conn->err);
 		}
@@ -116,7 +116,7 @@ static void notify_setup_sco_cmd(struct bt_conn *conn, struct bt_hci_cp_setup_sy
 {
 	struct bt_sco_hci_cb *callback;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&sco_hci_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sco_hci_cbs, struct bt_sco_hci_cb, callback, _node) {
 		if (callback->setup != NULL) {
 			callback->setup(conn, cp);
 		}
@@ -133,7 +133,7 @@ static void notify_accept_sco_req_cmd(struct bt_hci_cp_accept_sync_conn_req *cp)
 {
 	struct bt_sco_hci_cb *callback;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&sco_hci_cbs, callback, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sco_hci_cbs, struct bt_sco_hci_cb, callback, _node) {
 		if (callback->accept != NULL) {
 			callback->accept(cp);
 		}

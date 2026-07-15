@@ -182,7 +182,7 @@ done:
 	/* Change to cooperative priority while we do the callbacks */
 	k_sched_lock();
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, cb, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, struct bt_pub_key_cb, cb, node) {
 		if (cb->func) {
 			cb->func(err ? NULL : pub_key);
 		}
@@ -274,7 +274,7 @@ int bt_pub_key_gen(struct bt_pub_key_cb *new_cb)
 		return -EINVAL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, cb, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, struct bt_pub_key_cb, cb, node) {
 		if (cb == new_cb) {
 			LOG_DBG("Callback already registered");
 			return -EALREADY;
@@ -309,7 +309,7 @@ void bt_pub_key_hci_disrupted(void)
 
 	atomic_clear_bit(flags, PENDING_PUB_KEY);
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, cb, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&pub_key_cb_slist, struct bt_pub_key_cb, cb, node) {
 		if (cb->func) {
 			cb->func(NULL);
 		}
