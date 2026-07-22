@@ -43,6 +43,9 @@ struct z_spinlock_key {
  * application code.
  */
 struct k_spinlock {
+#ifdef _MSC_VER
+    uint64_t underlying_spinlock_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */

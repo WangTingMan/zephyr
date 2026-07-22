@@ -33,6 +33,10 @@
 #define CONFIG_LITTLE_ENDIAN
 #endif
 
+#ifndef CONFIG_SYS_CLOCK_EXISTS
+#define CONFIG_SYS_CLOCK_EXISTS
+#endif
+
 #define _DO_CONCAT_DETAIL_FOR_LINK(y) ptr_ ## y
 #ifndef _CONCAT_PTR_PRE
 #define _CONCAT_PTR_PRE(y) _DO_CONCAT_DETAIL_FOR_LINK(y)
@@ -60,6 +64,10 @@
 
 #ifndef ALWAYS_INLINE
 #define ALWAYS_INLINE __forceinline
+#endif
+
+#ifndef ARG_UNUSED
+#define ARG_UNUSED(...)
 #endif
 
 #ifndef ssize_t

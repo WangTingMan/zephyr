@@ -85,9 +85,14 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
+#ifdef _MSC_VER
+#define TYPE_SECTION_START_EXTERN(type, secname) \
+    extern type** TYPE_SECTION_START(secname)(); \
+	type** _list_start = TYPE_SECTION_START(secname)();
+#else
 #define TYPE_SECTION_START_EXTERN(type, secname) \
 	extern type TYPE_SECTION_START(secname)[]
-
+#endif
 /**
  * @brief iterable section extern for end symbol for a generic type
  *
@@ -99,9 +104,14 @@ extern "C" {
  * @param[in]  type data type of section
  * @param[in]  secname name of output section
  */
+#ifdef _MSC_VER
+#define TYPE_SECTION_END_EXTERN(type, secname) \
+    extern type** TYPE_SECTION_END(secname)(); \
+	type** _list_end = TYPE_SECTION_END(secname)()
+#else
 #define TYPE_SECTION_END_EXTERN(type, secname) \
 	extern type TYPE_SECTION_END(secname)[]
-
+#endif
 /**
  * @brief Iterate over a specified iterable section for a generic type
  *
@@ -112,13 +122,21 @@ extern "C" {
  * list of struct objects to iterate over. This is normally done using
  * ITERABLE_SECTION_ROM() or ITERABLE_SECTION_RAM() in the linker script.
  */
+#ifdef _MSC_VER
+#define TYPE_SECTION_FOREACH(type, secname, iterator)		\
+	TYPE_SECTION_START_EXTERN(type, secname);		\
+	TYPE_SECTION_END_EXTERN(type, secname);		\
+	for (type* iterator = *_list_start; 	\
+		     _list_start != _list_end;	\
+	     _list_start++, iterator = *_list_start)
+#else
 #define TYPE_SECTION_FOREACH(type, secname, iterator)		\
 	TYPE_SECTION_START_EXTERN(type, secname);		\
 	TYPE_SECTION_END_EXTERN(type, secname);		\
 	for (type * iterator = TYPE_SECTION_START(secname); 	\
 		     iterator < TYPE_SECTION_END(secname);	\
 	     iterator++)
-
+#endif
 /**
  * @brief Iterate over a specified iterable section for a generic type, in
  * reverse order.
@@ -173,9 +191,13 @@ extern "C" {
  *
  * @param[in]  struct_type data type of section
  */
+#ifdef _MSC_VER
+#define STRUCT_SECTION_START(struct_type) \
+	TYPE_SECTION_START(struct_type)()
+#else
 #define STRUCT_SECTION_START(struct_type) \
 	TYPE_SECTION_START(struct_type)
-
+#endif
 /**
  * @brief iterable section extern for start symbol for a struct
  *

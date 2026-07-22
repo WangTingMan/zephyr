@@ -88,6 +88,13 @@ struct k_mem_partition;
 struct k_futex;
 struct k_event;
 
+#ifdef _MSC_VER
+typedef struct kernel_object_
+{
+    uint64_t associate_signal_id;
+} kernel_object;
+#endif
+
 enum execution_context_types {
 	K_ISR = 0,
 	K_COOP_THREAD,
@@ -1797,6 +1804,9 @@ const char *k_thread_state_str(k_tid_t thread_id, char *buf, size_t buf_size);
  * All the members are internal and should not be accessed directly.
  */
 struct k_timer {
+#ifdef _MSC_VER
+    uint64_t timer_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -2296,6 +2306,7 @@ static inline uint64_t k_cycle_get_64(void)
  */
 struct k_queue {
 #ifdef _MSC_VER
+    kernel_object kobj;
     uint16_t underlying_id;
 #endif
 /**
@@ -3798,7 +3809,9 @@ struct k_sem {
 	_wait_q_t wait_q;
 	unsigned int count;
 	unsigned int limit;
+#ifdef _MSC_VER
     uint16_t underlying_id;
+#endif
 	Z_DECL_POLL_EVENT
 
 	SYS_PORT_TRACING_TRACKING_FIELD(k_sem)
@@ -4746,6 +4759,15 @@ struct k_work_delayable {
 
 	/* The queue to which the work should be submitted. */
 	struct k_work_q *queue;
+#ifdef _MSC_VER
+    /*
+     * WARNING: DO NOT move this field to the top of the structure!
+     * The kernel relies on struct polymorphism where (struct k_work*) casts
+     * expect 'work' to be at Offset 0. Placing fields before 'work' breaks
+     * memory mapping and corrupts intrusive list pointers.
+     */
+    uint64_t tracked_id;
+#endif
 /**
  * INTERNAL_HIDDEN @endcond
  */
@@ -5301,6 +5323,9 @@ int k_work_poll_cancel(struct k_work_poll *work);
  * All the members are internal and should not be accessed directly.
  */
 struct k_msgq {
+#ifdef _MSC_VER
+    uint16_t underlying_id;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -6754,6 +6779,9 @@ enum k_poll_modes {
 
 /* public - poll signal object */
 struct k_poll_signal {
+#ifdef _MSC_VER
+    kernel_object kobj;
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */
@@ -6784,6 +6812,10 @@ struct k_poll_signal {
  *
  */
 struct k_poll_event {
+#ifdef _MSC_VER
+    kernel_object kobj;
+    uint32_t poll_event_state;/*state*/
+#endif
 /**
  * @cond INTERNAL_HIDDEN
  */

@@ -21,6 +21,7 @@
 #include <base/run_loop.h>
 #include <base/threading/platform_thread.h>
 #include <base/message_loop/message_loop.h>
+#include <base/timer/timer.h>
 
 #include <chrono>
 #include <functional>
@@ -35,6 +36,91 @@
 namespace bluetooth {
 
 namespace common {
+
+enum class tackable_task_status
+{
+    not_scheduled,
+    cancelled,
+    scheduled,
+    work_done,
+};
+
+class trackable_task_control_block
+{
+
+public:
+
+    uint64_t get_id()const
+    {
+        return m_track_id;
+    }
+
+    void set_id( uint64_t a_id )
+    {
+        m_track_id = a_id;
+    }
+
+    void set_task( std::function<void()> a_timeout_callbac )
+    {
+        m_timeout_callback = a_timeout_callbac;
+    }
+
+    void set_delay_time( std::chrono::microseconds a_delay )
+    {
+        m_scheduled_time_point = std::chrono::steady_clock::now();
+        m_delay_time = a_delay;
+    }
+
+    void handle_task()
+    {
+        if( m_status == tackable_task_status::work_done ||
+            m_status == tackable_task_status::cancelled ||
+            m_status == tackable_task_status::not_scheduled )
+        {
+            return;
+        }
+
+        if( m_timeout_callback )
+        {
+            m_timeout_callback();
+        }
+        m_status = tackable_task_status::work_done;
+    }
+
+    bool need_delete()
+    {
+        switch( m_status )
+        {
+        case tackable_task_status::cancelled:
+            return true;
+        case tackable_task_status::work_done:
+            return true;
+        default:
+            return false;
+        }
+        return false;
+    }
+
+private:
+
+    friend class MessageLoopThread;
+    std::chrono::steady_clock::time_point m_scheduled_time_point;
+    std::chrono::microseconds m_delay_time;
+    uint64_t m_track_id = 0x00;
+    tackable_task_status m_status = tackable_task_status::not_scheduled;
+    base::OneShotTimer m_timer;
+    std::function<void()> m_timeout_callback;
+};
+
+struct TimerControlBlock
+{
+    std::string m_name;
+    uint32_t m_id{ 0 };
+    uint32_t m_intervalms{ 0 };
+    bool m_periodic{ false };
+    base::RepeatingTimer m_timer;
+    std::function<void()> m_callback;
+};
 
 /**
  * An interface to various thread related functionality
@@ -178,6 +264,35 @@ public:
 
   bool DoInThreadDelayed( std::function<void()> task, std::chrono::microseconds delay );
 
+  bool DoInThreadDelayedWithTrack( uint64_t a_id, std::function<void()> task, std::chrono::microseconds delay );
+
+  bool ChangeDelayedWithTrackDelay(uint64_t a_id, std::chrono::microseconds delay );
+
+  bool CancelDelayWithTrack(uint64_t a_id);
+
+  bool TackedTaskID( uint64_t a_id )
+  {
+    std::lock_guard locker( api_mutex_ );
+    return m_trackable_tasks.contains(a_id);
+  }
+
+  void MakeNewAlarm
+    (
+      uint64_t a_id,
+      std::string&& a_name,
+      std::function<void()> a_callBack,
+      bool a_periodic
+    );
+
+  void SetAlarm
+    (
+    uint64_t a_alarm,
+    uint64_t _duration,
+    uint64_t a_interval_ms
+    );
+
+    void SetopAlarm(uint64_t a_id);
+
   /**
    * Wrapper around DoInThread without a location.
    */
@@ -195,6 +310,35 @@ private:
    */
   static void RunThread(MessageLoopThread* context, std::promise<void> start_up_promise);
 
+  bool DoInThreadDelayedWithTrackDetail( uint64_t a_id );
+
+  bool ChangeDelayedWithTrackDelayDetail( uint64_t a_id );
+
+  bool CancelDelayWithTrackDetail( uint64_t a_id );
+
+  void SetAlarmDetail
+    (
+    uint64_t a_alarm,
+    uint64_t a_interval_ms
+    );
+
+  void StopAlarmInternal( uint64_t a_alarm );
+
+  void TimerEvent( uint64_t a_alarm );
+
+  std::shared_ptr<TimerControlBlock> FindTimer( uint64_t a_alarm )
+  {
+      for( auto& ele : m_timers )
+      {
+          if( ele->m_id == a_alarm )
+          {
+              return ele;
+          }
+      }
+
+      return nullptr;
+  }
+
   /**
    * Actual method to run the thread, blocking until ShutDown() is called
    *
@@ -211,6 +355,8 @@ private:
   base::PlatformThreadId thread_id_;
   base::WeakPtrFactory<MessageLoopThread> weak_ptr_factory_;
   bool shutting_down_;
+  std::map<uint64_t,std::shared_ptr<trackable_task_control_block>> m_trackable_tasks;
+  std::list<std::shared_ptr<TimerControlBlock>> m_timers;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const bluetooth::common::MessageLoopThread& a) {
@@ -234,6 +380,8 @@ public:
 
     std::shared_ptr<bluetooth::common::MessageLoopThread> get_message_loop( uint64_t );
 
+    std::shared_ptr<bluetooth::common::MessageLoopThread> get_message_loop_by_track_id( uint64_t );
+
     void quit_message_loop( uint64_t );
 
     std::shared_ptr<k_thread> get_thread_cb(uint64_t a_tid);
@@ -244,9 +392,25 @@ public:
         m_k_thread_cbs.push_back(cb);
     }
 
+    uint64_t get_next_tackable_id()
+    {
+        std::lock_guard locker( m_mtex );
+        uint64_t id = m_next_tackable_task_id++;
+        if( id == 0x00 )
+        {
+            id = m_next_tackable_task_id++;
+        }
+        return id;
+    }
+
+    void set_timer_duration_in_thread( uint64_t timer_id, int duration, int  _peroid_milliseconds );
+
+    void stop_timer_in_thread( uint64_t timer_id );
+
 private:
 
     std::mutex m_mtex;
     std::map<uint64_t, std::shared_ptr<bluetooth::common::MessageLoopThread>> m_threads;
     std::vector<std::shared_ptr<k_thread>> m_k_thread_cbs;
+    uint64_t m_next_tackable_task_id = 1; /* should not be zero any way! */
 };

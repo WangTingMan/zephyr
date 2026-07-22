@@ -149,9 +149,12 @@ struct init_entry {
  * expressions are **not** permitted (e.g.
  * `CONFIG_KERNEL_INIT_PRIORITY_DEFAULT + 5`).
  */
+#ifdef _MSC_VER
+#define SYS_INIT(init_fn, level, prio) REGISTER_PRE_MAIN(init_fn)
+#else
 #define SYS_INIT(init_fn, level, prio)                                         \
 	SYS_INIT_NAMED(init_fn, init_fn, level, prio)
-
+#endif
 /**
  * @brief Register an initialization function (named).
  *

@@ -28,6 +28,7 @@
     <ClCompile Include="..\..\win\atomic_c.c" />
     <ClCompile Include="..\..\win\atomic_impl.cpp" />
     <ClCompile Include="..\..\win\filesystem_support.c" />
+    <ClCompile Include="..\..\win\filesystem_support_impl.cpp" />
     <ClCompile Include="..\..\win\hci.cc" />
     <ClCompile Include="..\..\win\kernel_support.c" />
     <ClCompile Include="..\..\win\kernel_support_impl.cpp" />
@@ -46,7 +47,10 @@
     <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\log.h" />
     <ClInclude Include="..\..\..\BluetoothStack\stack\hci\hardware\realtek_bluetooth_chipset_initializer.h" />
     <ClInclude Include="..\..\..\BluetoothStack\stack\hci\windows\windows_usb_transport.h" />
+    <ClInclude Include="..\..\include\zephyr\win\associate_signal.h" />
+    <ClInclude Include="..\..\include\zephyr\win\associate_signal_manager.h" />
     <ClInclude Include="..\..\include\zephyr\win\atomic_impl.h" />
+    <ClInclude Include="..\..\include\zephyr\win\filesystem_support_impl.h" />
     <ClInclude Include="..\..\include\zephyr\win\kernel_support_impl.h" />
     <ClInclude Include="..\..\include\zephyr\win\message_loop_thread.h" />
     <ClInclude Include="..\..\include\zephyr\win\mutex_support.h" />
@@ -105,7 +109,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)../../include;E:\VCLAB\component\chromebase;E:\VCLAB\BluetoothStack\stack\hci;E:\VCLAB\component\logging\liblog\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)../../include;$(ProjectDir)../../thirdparty/chromebase;E:\VCLAB\BluetoothStack\stack\hci;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -117,6 +117,10 @@
 #define compiler_barrier(...)
 #endif
 
+#ifndef CONFIG_TASK_WDT_CHANNELS
+#define CONFIG_TASK_WDT_CHANNELS 30
+#endif
+
 #ifndef __attribute_nonnull
 #define __attribute_nonnull(...)
 #endif
@@ -154,7 +158,7 @@
 #define CONFIG_BT_GATT_CLIENT
 #define CONFIG_BT_GATT_SERVICE_CHANGED
 #define CONFIG_BT_GATT_CACHING
-#define CONFIG_BT_SETTINGS
+#define CONFIG_BT_SETTINGS 1
 #define CONFIG_BT_SMP
 #define CONFIG_BT_SETTINGS_CCC_STORE_MAX 1
 #define CONFIG_BT_BUF_CMD_TX_COUNT 2
@@ -179,7 +183,7 @@
 #define CONFIG_BT_L2CAP_RET_FC 1
 #define CONFIG_BT_L2CAP_MAX_WINDOW_SIZE 10
 #define CONFIG_BT_L2CAP_BR_MONITOR_TIMEOUT 50
-#define CONFIG_BT_CLASSIC
+#define CONFIG_BT_CLASSIC 1
 #define CONFIG_BT_BR_MIN_ENC_KEY_SIZE 64
 #define CONFIG_BT_COD 523
 #define CONFIG_BT_PAGE_TIMEOUT 5128
@@ -231,6 +235,9 @@
 #define CONFIG_BT_DRIVER_RX_HIGH_PRIO 0
 #define CONFIG_BT_HCI_TX_PRIO 100
 #define CONFIG_BT_AVRCP_VD_RX_SIZE 512
+#define CONFIG_BT_DEVICE_NAME_DYNAMIC
+#define CONFIG_BT_DEVICE_NAME_MAX 48
+#define CONFIG_BT_HOST_CRYPTO 1
 
 #define K_THREAD_STACK_DEFINE(sym, size) \
         __declspec(align(8)) uint8_t sym[size]

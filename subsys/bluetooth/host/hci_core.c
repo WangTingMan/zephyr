@@ -4631,6 +4631,11 @@ static int bt_init(void)
 		}
 	}
 
+#ifdef _MSC_VER
+    settings_load();
+    LOG_DBG( "we need load the settings here to enable bluetooth...but do not know why?" );
+#endif
+
 	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
 		if (!bt_dev.id_count) {
 			LOG_INF("No ID address. App must call settings_load()");

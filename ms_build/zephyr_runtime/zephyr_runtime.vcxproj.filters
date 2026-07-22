@@ -72,6 +72,9 @@
     <ClCompile Include="..\..\win\queue_support_impl.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\win\filesystem_support_impl.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\zephyr\win\atomic_impl.h">
@@ -108,6 +111,15 @@
       <Filter>standard_win_usb</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\zephyr\win\queue_support_impl.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\filesystem_support_impl.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\associate_signal.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\win\associate_signal_manager.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>

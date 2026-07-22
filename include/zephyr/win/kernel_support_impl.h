@@ -13,6 +13,12 @@
 extern "C" {
 #endif
 
+enum
+{
+    tracked_task_queued,
+    tracked_task_running,
+};
+
 typedef void (*function_type)( void* p1 );
 
 struct k_thread;
@@ -29,9 +35,30 @@ int post_task_to_thread
     uint32_t a_delay_time_in_milliseconds
     );
 
+int post_task_to_thread_tackable
+    (
+    uint64_t a_thread_id,
+    function_type a_task,
+    void* a_parameters,
+    uint32_t a_delay_time_in_milliseconds,
+    uint64_t* a_track_id
+    );
+
+int cancel_tacked_task( uint64_t a_track_id );
+
+int change_tacked_task_delay( uint64_t a_track_id, uint32_t a_delay );
+
 void require_global_lock();
 
 void release_global_lock();
+
+int64_t get_system_up_time();
+
+uint64_t common_timer_create_in_thread( uint64_t a_thread_id, function_type a_callback, void* a_user_data );
+
+void set_timer_duration_in_thread( uint64_t timer_id, int duration, int _peroid_milliseconds );
+
+void stop_timer_in_thread( uint64_t timer_id);
 
 uint16_t allocate_one_mutex();
 int require_mutex( uint16_t a_id, uint32_t timeout );
@@ -49,6 +76,29 @@ int semaphone_clear_count( uint16_t a_id );
 int semaphone_get_count( uint16_t a_id );
 int set_thread_name(const char* a_name, uint64_t a_thread_id);
 void sleep_current_thread(uint64_t duration_in_us);
+void init_zephyr_runtime();
+
+int associate_signal_exist( uint64_t id );
+
+uint64_t allocate_underlying_associate_signal( const char* a_name );
+
+void trigger_associate_signal( uint64_t id );
+
+void reset_associate_signal( uint64_t id );
+
+void poll_event_init
+    (
+    uint64_t a_chain_up_signal_id,
+    uint64_t a_chain_down_signal_id,
+    uint32_t type,
+    int mode
+    );
+
+int poll_event_
+    (
+    uint64_t a_signal_id,
+    uint32_t* a_type
+    );
 
 void initialize_hci();
 void initialize_net_pool();

@@ -101,6 +101,88 @@ bool MessageLoopThread::DoInThreadDelayed( std::function<void()> task, std::chro
         }, task ), delay );
 }
 
+bool MessageLoopThread::DoInThreadDelayedWithTrack( uint64_t a_id, std::function<void()> task, std::chrono::microseconds delay )
+{
+    bool status = true;
+
+    std::shared_ptr<trackable_task_control_block> tcb;
+    tcb = std::make_shared<trackable_task_control_block>();
+    tcb->set_id(a_id);
+    tcb->set_task(task);
+    tcb->set_delay_time(delay);
+
+    std::lock_guard<std::recursive_mutex> api_lock( api_mutex_ );
+    m_trackable_tasks[a_id] = tcb;
+    LOG( INFO ) << "schedule delay task with track id: " << a_id << ", delay time "
+         << std::chrono::duration_cast< std::chrono::milliseconds >( delay ).count() << "ms.";
+    DoInThreadDelayed( std::bind( &MessageLoopThread::DoInThreadDelayedWithTrackDetail, this, a_id ), delay );
+    return status;
+}
+
+bool MessageLoopThread::ChangeDelayedWithTrackDelay( uint64_t a_id, std::chrono::microseconds delay )
+{
+    bool status = true;
+    std::lock_guard<std::recursive_mutex> api_lock( api_mutex_ );
+    auto it = m_trackable_tasks.find(a_id);
+    if( it == m_trackable_tasks.end() )
+    {
+        return false;
+    }
+
+    it->second->set_delay_time(delay);
+    status = DoInThread( std::bind( &MessageLoopThread::ChangeDelayedWithTrackDelayDetail, this, a_id ) );
+    return status;
+}
+
+bool MessageLoopThread::CancelDelayWithTrack( uint64_t a_id )
+{
+    bool status = true;
+    std::lock_guard<std::recursive_mutex> api_lock( api_mutex_ );
+    auto it = m_trackable_tasks.find( a_id );
+    if( it == m_trackable_tasks.end() )
+    {
+        return false;
+    }
+
+    status = DoInThread( std::bind( &MessageLoopThread::CancelDelayWithTrackDetail, this, a_id ) );
+    return status;
+}
+
+void MessageLoopThread::MakeNewAlarm
+    (
+    uint64_t a_id,
+    std::string&& a_name,
+    std::function<void()> a_callBack,
+    bool a_periodic
+    )
+{
+    std::shared_ptr<TimerControlBlock> cb;
+    cb = std::make_shared<TimerControlBlock>();
+    cb->m_id = a_id;
+    cb->m_name = a_name;
+    cb->m_periodic = a_periodic;
+    cb->m_callback = a_callBack;
+
+    std::lock_guard locker( api_mutex_ );
+    m_timers.emplace_back( std::move( cb ) );
+}
+
+void MessageLoopThread::SetAlarm
+    (
+    uint64_t a_alarm,
+    uint64_t _duration,
+    uint64_t a_interval_ms
+    )
+{
+    std::chrono::milliseconds dur(_duration);
+    DoInThreadDelayed( std::bind( &MessageLoopThread::SetAlarmDetail, this, a_alarm, a_interval_ms ), dur );
+}
+
+void MessageLoopThread::SetopAlarm( uint64_t a_id )
+{
+    DoInThread( std::bind( &MessageLoopThread::StopAlarmInternal, this, a_id ) );
+}
+
 void MessageLoopThread::ShutDown() {
   {
     std::lock_guard<std::recursive_mutex> api_lock(api_mutex_);
@@ -162,6 +244,156 @@ bool MessageLoopThread::IsRunning() const {
 // Non API method, should not be protected by API mutex
 void MessageLoopThread::RunThread(MessageLoopThread* thread, std::promise<void> start_up_promise) {
   thread->Run(std::move(start_up_promise));
+}
+
+bool MessageLoopThread::DoInThreadDelayedWithTrackDetail( uint64_t a_id )
+{
+    std::shared_ptr<trackable_task_control_block> tcb;
+    std::unique_lock<std::recursive_mutex> api_lock( api_mutex_ );
+    auto it = m_trackable_tasks.find(a_id);
+    if( it == m_trackable_tasks.end() )
+    {
+        return false;
+    }
+    tcb = it->second;
+    if( !tcb )
+    {
+        return false;
+    }
+
+    if( !message_loop_ )
+    {
+        return false;
+    }
+
+    std::chrono::steady_clock::time_point now_ = std::chrono::steady_clock::now();
+    if( tcb->m_scheduled_time_point + tcb->m_delay_time + std::chrono::milliseconds(10) < now_ )
+    {
+        LOG( ERROR ) << "cancel the delay task since time expired, track id: " << a_id;
+        tcb->m_status = tackable_task_status::cancelled;
+        return false;
+    }
+
+    auto delay_time = std::chrono::duration_cast<std::chrono::microseconds>(
+        tcb->m_scheduled_time_point + tcb->m_delay_time - now_ );
+    tcb->m_timer.SetTaskRunner( message_loop_->task_runner() );
+    base::TimeDelta delta = base::TimeDelta::FromMicroseconds( delay_time.count());
+    tcb->m_status = tackable_task_status::scheduled;
+    tcb->m_timer.Start( FROM_HERE, delta, base::Bind( &trackable_task_control_block::handle_task, tcb ) );
+    return true;
+}
+
+bool MessageLoopThread::ChangeDelayedWithTrackDelayDetail( uint64_t a_id )
+{
+    std::shared_ptr<trackable_task_control_block> tcb;
+    std::unique_lock<std::recursive_mutex> api_lock( api_mutex_ );
+    auto it = m_trackable_tasks.find( a_id );
+    if( it == m_trackable_tasks.end() )
+    {
+        return false;
+    }
+    tcb = it->second;
+    if( !tcb )
+    {
+        return false;
+    }
+
+    if( !message_loop_ )
+    {
+        return false;
+    }
+
+    std::chrono::steady_clock::time_point now_ = std::chrono::steady_clock::now();
+    if( tcb->m_scheduled_time_point + tcb->m_delay_time < now_ )
+    {
+        tcb->m_status = tackable_task_status::cancelled;
+        return false;
+    }
+
+    auto delay_time = std::chrono::duration_cast< std::chrono::microseconds >(
+        tcb->m_scheduled_time_point + tcb->m_delay_time - now_ );
+    tcb->m_timer.Stop();
+    base::TimeDelta delta = base::TimeDelta::FromMicroseconds( delay_time.count() );
+    tcb->m_timer.Start( FROM_HERE, delta, base::Bind( &trackable_task_control_block::handle_task, tcb ) );
+    return true;
+}
+
+bool MessageLoopThread::CancelDelayWithTrackDetail( uint64_t a_id )
+{
+    std::shared_ptr<trackable_task_control_block> tcb;
+    std::unique_lock<std::recursive_mutex> api_lock( api_mutex_ );
+    auto it = m_trackable_tasks.find( a_id );
+    if( it == m_trackable_tasks.end() )
+    {
+        return false;
+    }
+    tcb = it->second;
+    if( !tcb )
+    {
+        return false;
+    }
+
+    tcb->m_status = tackable_task_status::cancelled;
+    tcb->m_timer.Stop();
+    return true;
+}
+
+void MessageLoopThread::SetAlarmDetail
+    (
+    uint64_t a_alarm,
+    uint64_t a_interval_ms
+    )
+{
+    std::unique_lock<std::recursive_mutex> api_lock( api_mutex_ );
+    auto timer = FindTimer( a_alarm );
+    if( !timer )
+    {
+        return;
+    }
+
+    timer->m_intervalms = a_interval_ms;
+    if( timer->m_timer.IsRunning() )
+    {
+        timer->m_timer.AbandonAndStop();
+    }
+
+    timer->m_timer.Start( FROM_HERE, base::TimeDelta::FromMilliseconds( timer->m_intervalms ),
+        base::BindRepeating( &MessageLoopThread::TimerEvent,
+            base::Unretained( this ), timer->m_id ) );
+    api_lock.unlock();
+
+    TimerEvent(a_alarm);
+}
+
+void MessageLoopThread::StopAlarmInternal( uint64_t a_alarm )
+{
+    auto timer = FindTimer( a_alarm );
+    if( !timer )
+    {
+        return;
+    }
+
+    if( timer->m_timer.IsRunning() )
+    {
+        timer->m_timer.AbandonAndStop();
+    }
+}
+
+void MessageLoopThread::TimerEvent( uint64_t a_alarm )
+{
+    auto timer = FindTimer( a_alarm );
+    if( !timer )
+    {
+        return;
+    }
+
+    if( !timer->m_periodic )
+    {
+        timer->m_timer.AbandonAndStop();
+    }
+
+    std::function<void()> callback = timer->m_callback;
+    callback();
 }
 
 // This is only for use in tests.
@@ -252,6 +484,19 @@ std::shared_ptr<bluetooth::common::MessageLoopThread> message_loop_thread_manage
     return nullptr;
 }
 
+std::shared_ptr<bluetooth::common::MessageLoopThread> message_loop_thread_manager::get_message_loop_by_track_id( uint64_t a_id )
+{
+    std::lock_guard locker( m_mtex );
+    for( auto& ele : m_threads )
+    {
+        if( ele.second->TackedTaskID(a_id) )
+        {
+            return ele.second;
+        }
+    }
+    return nullptr;
+}
+
 void message_loop_thread_manager::quit_message_loop( uint64_t a_id )
 {
     std::shared_ptr<bluetooth::common::MessageLoopThread> thread;
@@ -292,6 +537,20 @@ std::shared_ptr<k_thread> message_loop_thread_manager::get_thread_cb( uint64_t a
 
     m_k_thread_cbs.push_back(_thread);
     return _thread;
+}
+
+void message_loop_thread_manager::set_timer_duration_in_thread( uint64_t timer_id, int duration, int  _peroid_milliseconds )
+{
+    std::unique_lock locker( m_mtex );
+    for( auto& ele : m_threads )
+    {
+        ele.second->SetAlarm(timer_id, duration, _peroid_milliseconds);
+    }
+}
+
+void message_loop_thread_manager::stop_timer_in_thread( uint64_t timer_id )
+{
+
 }
 
 extern "C"
@@ -335,13 +594,88 @@ int post_task_to_thread
     auto thread = message_loop_thread_manager::get_instance().get_message_loop(a_thread_id);
     if( !thread )
     {
-        // TODO ? no such thread!
+        LOG(ERROR) << "no such thread with id: " << a_thread_id;
         return -90;
     }
 
     std::function<void()> fun = std::bind(a_task, a_parameters);
     thread->DoInThreadDelayed(fun, std::chrono::milliseconds(a_delay_time_in_milliseconds));
     return 0;
+}
+
+int post_task_to_thread_tackable
+    (
+    uint64_t a_thread_id,
+    function_type a_task,
+    void* a_parameters,
+    uint32_t a_delay_time_in_milliseconds,
+    uint64_t* a_track_id
+    )
+{
+    if( a_track_id == NULL )
+    {
+        return post_task_to_thread(a_thread_id, a_task, a_parameters, a_delay_time_in_milliseconds );
+    }
+
+    auto thread = message_loop_thread_manager::get_instance().get_message_loop( a_thread_id );
+    if( !thread )
+    {
+        LOG( ERROR ) << "no such thread with id: " << a_thread_id;
+        return -90;
+    }
+
+    uint64_t id = message_loop_thread_manager::get_instance().get_next_tackable_id();
+    *a_track_id = id;
+    std::function<void()> fun = std::bind( a_task, a_parameters );
+    thread->DoInThreadDelayedWithTrack(id, fun, std::chrono::milliseconds( a_delay_time_in_milliseconds ) );
+    return 0;
+}
+
+int cancel_tacked_task( uint64_t a_track_id )
+{
+    auto thread = message_loop_thread_manager::get_instance().get_message_loop_by_track_id( a_track_id );
+    if( !thread )
+    {
+        return -90;
+    }
+
+    thread->CancelDelayWithTrack(a_track_id);
+    return 0;
+}
+
+int change_tacked_task_delay( uint64_t a_track_id, uint32_t a_delay )
+{
+    auto thread = message_loop_thread_manager::get_instance().get_message_loop_by_track_id( a_track_id );
+    if( !thread )
+    {
+        return -90;
+    }
+
+    thread->ChangeDelayedWithTrackDelay(a_track_id, std::chrono::milliseconds( a_delay ) );
+    return 0;
+}
+
+uint64_t common_timer_create_in_thread( uint64_t a_thread_id, function_type a_callback, void* a_user_data )
+{
+    uint64_t id = message_loop_thread_manager::get_instance().get_next_tackable_id();
+    auto thread = message_loop_thread_manager::get_instance().get_message_loop_by_track_id( a_thread_id );
+    if( !thread )
+    {
+        return 0;
+    }
+
+    thread->MakeNewAlarm(id, "no name", std::bind(a_callback, a_user_data), true );
+    return id;
+}
+
+void set_timer_duration_in_thread( uint64_t timer_id, int duration, int  _peroid_milliseconds )
+{
+    message_loop_thread_manager::get_instance().set_timer_duration_in_thread(timer_id, duration, _peroid_milliseconds);
+}
+
+void stop_timer_in_thread( uint64_t timer_id )
+{
+    message_loop_thread_manager::get_instance().stop_timer_in_thread( timer_id );
 }
 
 }

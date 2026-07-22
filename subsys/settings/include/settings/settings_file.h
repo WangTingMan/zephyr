@@ -15,7 +15,11 @@
 extern "C" {
 #endif
 
+#ifdef _MSC_VER
+#define SETTINGS_FILE_NAME_MAX 512
+#else
 #define SETTINGS_FILE_NAME_MAX 32 /* max length for settings filename */
+#endif
 
 struct settings_file {
 	struct settings_store cf_store;

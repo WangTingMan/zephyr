@@ -59,20 +59,6 @@ void initialize_hci()
     hci->api = &hci_apis;
 }
 
-struct net_buf* bt_hci_evt_create_from_zephyr_pool( uint8_t evt, uint8_t len )
-{
-    struct bt_hci_evt_hdr* hdr;
-    struct net_buf* buf;
-
-    buf = bt_buf_get_evt( evt, false, K_FOREVER );
-
-    hdr = net_buf_add( buf, sizeof( *hdr ) );
-    hdr->evt = evt;
-    hdr->len = len;
-
-    return buf;
-}
-
 struct net_buf* hci_get_buf_to_copy( uint8_t type, uint8_t evt, uint16_t exp_len )
 {
     struct net_buf* buf = NULL;

@@ -3,12 +3,12 @@
 
 #define NET_POOL_SIZE 100
 struct net_buf_pool* _net_buf_pool_list[NET_POOL_SIZE] = {0x00};
-uint32_t s_next_id = 0;
+uint32_t s_buf_pool_next_id = 0;
 
 void register_net_buf_pool_instance( struct net_buf_pool* instance )
 {
-    uint32_t id = s_next_id;
-    s_next_id++;
+    uint32_t id = s_buf_pool_next_id;
+    s_buf_pool_next_id++;
     instance->this_pool_id = id;
     _net_buf_pool_list[id] = instance;
     instance->free._queue.underlying_id = queue_init(0);

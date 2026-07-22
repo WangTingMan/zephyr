@@ -6,6 +6,8 @@
 #include <mutex>
 #include <vector>
 
+#include <base/logging.h>
+
 class queue_support_entity
 {
 
@@ -59,6 +61,18 @@ public:
         m_detail_queue.clear();
     }
 
+    void set_element_size( uint32_t a_size )
+    {
+        std::unique_lock locker( m_this_mutex );
+        m_element_size = a_size;
+    }
+
+    uint32_t get_element_size()
+    {
+        std::unique_lock locker( m_this_mutex );
+        return m_element_size;
+    }
+
     void* get_front( uint32_t timeout )
     {
         void* data = nullptr;
@@ -67,19 +81,36 @@ public:
         {
             data = m_detail_queue.front();
             m_detail_queue.pop_front();
+            if( data == nullptr )
+            {
+                LOG( ERROR ) << "get null pointer, then may be crash. >.<";
+            }
             return data;
         }
 
-        m_condition.wait_for( locker, std::chrono::milliseconds( timeout ), [this]()
+        if( timeout == 0 )
+        {
+            return nullptr;
+        }
+
+        m_condition.wait_for( locker, std::chrono::milliseconds( timeout ), [ this ]()
             {
                 return !m_detail_queue.empty();
-            });
+            } );
 
         if( !m_detail_queue.empty() )
         {
             data = m_detail_queue.front();
             m_detail_queue.pop_front();
-            return data;
+            if( data == nullptr )
+            {
+                LOG( ERROR ) << "get null pointer, then may be crash. >.<";
+            }
+        }
+
+        if( data == nullptr )
+        {
+            LOG( ERROR ) << "get null pointer, then may be crash. >.<";
         }
         return data;
     }
@@ -90,6 +121,7 @@ private:
     std::condition_variable m_condition;
     uint16_t m_id = 0x00;
     std::deque<void*> m_detail_queue;
+    uint32_t m_element_size = 0x00;
 };
 
 class queue_support_manager
@@ -194,6 +226,27 @@ uint16_t queue_init( uint16_t id )
         id = queue->get_id();
     }
     return id;
+}
+
+void queue_set_element_size( uint16_t id, uint32_t size )
+{
+    auto queue = queue_support_manager::get_instance().find_queue_by_id( id );
+    if( !queue )
+    {
+        return;
+    }
+
+    queue->set_element_size( size );
+}
+
+uint32_t queue_get_element_size( uint16_t id )
+{
+    auto queue = queue_support_manager::get_instance().find_queue_by_id( id );
+    if( !queue )
+    {
+        return 0;
+    }
+    return queue->get_element_size();
 }
 
 void queue_append( uint16_t id, void* data )

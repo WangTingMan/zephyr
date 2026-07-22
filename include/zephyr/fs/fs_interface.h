@@ -9,6 +9,12 @@
 
 #include <stdint.h>
 
+#ifdef _MSC_VER
+#ifndef CONFIG_FILE_SYSTEM_EXT2
+#define CONFIG_FILE_SYSTEM_EXT2
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

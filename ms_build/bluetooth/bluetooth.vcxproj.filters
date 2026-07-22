@@ -25,6 +25,24 @@
     <Filter Include="crypto">
       <UniqueIdentifier>{c5a7a83e-41ed-4062-92dc-3ece255a1d33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{afadc7ed-e719-4334-8bd4-7de3d6793f3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\audio">
+      <UniqueIdentifier>{35e8e580-bb57-424a-adb2-4747af0e0809}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\classic">
+      <UniqueIdentifier>{57adfebd-0998-4527-99a4-ed52fd312aed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\mesh">
+      <UniqueIdentifier>{f7725308-adf0-4313-aea2-209e786d7f07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\services">
+      <UniqueIdentifier>{e2c33e29-9f5f-4a0f-be1f-49cca91bc69e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\services\nus">
+      <UniqueIdentifier>{c4f64767-56f4-4739-baeb-279467c8531d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\subsys\bluetooth\common\addr.c">
@@ -229,6 +247,360 @@
     </ClInclude>
     <ClInclude Include="..\..\subsys\bluetooth\crypto\bt_crypto.h">
       <Filter>crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\addr.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\assigned_numbers.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\att.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\bluetooth.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\buf.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\byteorder.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\conn.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\controller.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\crypto.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\cs.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\data.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\direction.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\ead.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\gap.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\gatt.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\hci.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\hci_raw.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\hci_types.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\hci_vs.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\iso.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\l2cap.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\sbc.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\testing.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\uuid.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\aics.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\ascs.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\audio.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\bap.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\bap_lc3_preset.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\cap.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\ccid.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\ccp.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\csip.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\gmap.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\gmap_lc3_preset.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\has.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\lc3.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\mcc.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\mcs.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\media_proxy.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\micp.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\pacs.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\pbp.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\tbs.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\tmap.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\vcp.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\audio\vocs.h">
+      <Filter>include\audio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\a2dp.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\a2dp_codec_sbc.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\avdtp.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\avrcp.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\avrcp_cover_art.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\bip.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\classic.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\goep.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\hfp_ag.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\hfp_hf.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\l2cap_br.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\map.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\obex.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\pbap.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\rfcomm.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\classic\sdp.h">
+      <Filter>include\classic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\access.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\blob.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\blob_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\blob_io_flash.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\blob_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\brg_cfg.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\brg_cfg_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\brg_cfg_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\cdb.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\cfg.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\cfg_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\cfg_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfd.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfd_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfu.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfu_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfu_metadata.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\dfu_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\health_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\health_faults.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\health_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\heartbeat.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\keys.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\large_comp_data_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\large_comp_data_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\main.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\msg.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\od_priv_proxy_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\od_priv_proxy_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\op_agg_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\op_agg_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\priv_beacon_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\priv_beacon_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\proxy.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\rpr.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\rpr_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\rpr_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\sar_cfg.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\sar_cfg_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\sar_cfg_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\shell.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\sol_pdu_rpl_cli.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\sol_pdu_rpl_srv.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\mesh\statistic.h">
+      <Filter>include\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\ans.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\bas.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\cts.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\dis.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\ets.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\hrs.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\ias.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\nus.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\ots.h">
+      <Filter>include\services</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\zephyr\bluetooth\services\nus\inst.h">
+      <Filter>include\services\nus</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

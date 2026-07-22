@@ -27,7 +27,6 @@
 #ifdef _MSC_VER
 #pragma comment(lib, "bluetooth.lib")
 #pragma comment(lib, "zephyr_runtime.lib")
-#pragma comment(lib, "libcutils.lib")
 #pragma comment(lib, "utils.lib")
 #pragma comment(lib, "z_crc.lib")
 #pragma comment(lib, "z_settings.lib")
@@ -38,6 +37,7 @@
 
 #ifdef HAS_ANDROID_LIKE_LOG
 #pragma comment(lib, "liblog.lib")
+#pragma comment(lib, "libcutils.lib")
 #endif
 #endif
 

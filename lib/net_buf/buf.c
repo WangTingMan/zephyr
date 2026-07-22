@@ -53,8 +53,9 @@ BUILD_ASSERT(sizeof(atomic_t) == sizeof(long),
 #define GET_ALIGN(pool) MAX(sizeof(void *), pool->alloc->alignment)
 
 /* Linker-defined symbol bound to the static pool structs */
+#ifndef _MSC_VER
 STRUCT_SECTION_START_EXTERN(net_buf_pool);
-
+#endif
 struct net_buf_pool *net_buf_pool_get(int id)
 {
 	struct net_buf_pool *pool = NULL;

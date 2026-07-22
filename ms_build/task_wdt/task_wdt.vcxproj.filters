@@ -15,8 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\samples\bluetooth\central_hr\src\main.c">
+    <ClCompile Include="..\..\subsys\task_wdt\task_wdt.c">
       <Filter>source</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\zephyr\task_wdt\task_wdt.h">
+      <Filter>header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
