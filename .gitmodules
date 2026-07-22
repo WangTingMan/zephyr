@@ -1,3 +1,9 @@
 [submodule "thirdparty/chromebase"]
 	path = thirdparty/chromebase
 	url = https://github.com/WangTingMan/chromebase.git
+[submodule "thirdparty/boost_signals2"]
+	path = thirdparty/boost_signals2
+	url = https://github.com/WangTingMan/boost_signals2
+[submodule "thirdparty/Zhen"]
+	path = thirdparty/Zhen
+	url = https://github.com/WangTingMan/Zhen
