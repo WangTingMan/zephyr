@@ -44,6 +44,8 @@ extern "C" {
 #elif defined(CONFIG_ATOMIC_OPERATIONS_BUILTIN)
 /* Default.  See this file for the Doxygen reference: */
 #include <zephyr/sys/atomic_builtin.h>
+#elif defined(_MSC_VER)
+#include <zephyr/win/atomic_c.h>
 #else
 #error "CONFIG_ATOMIC_OPERATIONS_* not defined"
 #endif
@@ -117,7 +119,7 @@ extern "C" {
  * @param num_bits Number of bits needed.
  */
 #define ATOMIC_DEFINE(name, num_bits) \
-	atomic_t name[ATOMIC_BITMAP_SIZE(num_bits)]
+	atomic_t name[ATOMIC_BITMAP_SIZE(num_bits) > 0 ? ATOMIC_BITMAP_SIZE(num_bits) : 1]
 
 /**
  * @brief Atomically get and test a bit.

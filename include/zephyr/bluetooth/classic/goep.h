@@ -180,6 +180,14 @@ struct bt_goep {
  *  @param _goep Pointer to the @ref bt_goep structure to initialize.
  *  @param _v1   Pointer to the @ref bt_goep_transport_v1 structure to associate.
  */
+#ifdef _MSC_VER
+#define BT_GOEP_INIT_V1(_goep, _v1) \
+	do { \
+		(_v1)->goep = (_goep); \
+		(_goep)->v1 = (_v1); \
+		(_goep)->v2 = NULL; \
+	} while (0)
+#else
 #define BT_GOEP_INIT_V1(_goep, _v1) \
 	do { \
 		BUILD_ASSERT(SAME_TYPE(*(_goep), struct bt_goep) && \
@@ -189,7 +197,7 @@ struct bt_goep {
 		(_goep)->v1 = (_v1); \
 		(_goep)->v2 = NULL; \
 	} while (0)
-
+#endif
 /** @brief Initialize the GOEP and GOEP v2 (L2CAP) transport structures.
  *
  *  Sets up the mutual back-pointer between a @ref bt_goep instance and its transport instance
@@ -205,6 +213,14 @@ struct bt_goep {
  *  @param _goep Pointer to the @ref bt_goep structure to initialize.
  *  @param _v2   Pointer to the @ref bt_goep_transport_v2 structure to associate.
  */
+#ifdef _MSC_VER
+#define BT_GOEP_INIT_V2(_goep, _v2) \
+	do { \
+		(_v2)->goep = (_goep); \
+		(_goep)->v2 = (_v2); \
+		(_goep)->v1 = NULL; \
+	} while (0)
+#else
 #define BT_GOEP_INIT_V2(_goep, _v2) \
 	do { \
 		BUILD_ASSERT(SAME_TYPE(*(_goep), struct bt_goep) && \
@@ -214,7 +230,7 @@ struct bt_goep {
 		(_goep)->v2 = (_v2); \
 		(_goep)->v1 = NULL; \
 	} while (0)
-
+#endif
 /**
  * @defgroup bt_goep_transport_rfcomm GOEP transport RFCOMM
  * @ingroup bt_goep

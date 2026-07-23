@@ -74,11 +74,9 @@ struct avrcp_pdu_vendor_handler  {
 	bt_avrcp_ctype_t cmd_type;
 	int (*func)(struct bt_avrcp *avrcp, uint8_t tid, uint8_t result, struct net_buf *buf);
 };
-
 NET_BUF_POOL_FIXED_DEFINE(avrcp_vd_rx_pool, CONFIG_BT_MAX_CONN,
 			  CONFIG_BT_AVRCP_VD_RX_SIZE,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
 struct avrcp_pdu_handler {
 	bt_avrcp_pdu_id_t pdu_id;
 	uint8_t min_len;
@@ -87,7 +85,6 @@ struct avrcp_pdu_handler {
 
 #define AVRCP_AVCTP(_avctp) CONTAINER_OF(_avctp, struct bt_avrcp, session)
 #define AVRCP_BROW_AVCTP(_avctp) CONTAINER_OF(_avctp, struct bt_avrcp, browsing_session)
-
 NET_BUF_POOL_FIXED_DEFINE(avctp_ctrl_rx_pool, CONFIG_BT_MAX_CONN, BT_AVRCP_FRAGMENT_SIZE,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
 
@@ -140,12 +137,10 @@ static void avrcp_tx_buf_destroy(struct net_buf *buf)
 
 	net_buf_destroy(buf);
 }
-
 NET_BUF_POOL_FIXED_DEFINE(avrcp_vd_tx_pool, CONFIG_BT_MAX_CONN,
 			  BT_L2CAP_BUF_SIZE(BT_AVRCP_FRAGMENT_SIZE) +
 			  sizeof(struct bt_avctp_header_start),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, avrcp_tx_buf_destroy);
-
 #if defined(CONFIG_BT_AVRCP_TARGET)
 static struct bt_sdp_attribute avrcp_tg_attrs[] = {
 	BT_SDP_NEW_SERVICE,

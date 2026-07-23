@@ -165,9 +165,13 @@ typedef struct _slist sys_slist_t;
  * @param __cn A pointer to peek each entry of the list
  * @param __n The field name of sys_node_t within the container struct
  */
+#ifdef _MSC_VER
+#define SYS_SLIST_FOR_EACH_CONTAINER(__sl, type, __cn, __n)		\
+	Z_GENLIST_FOR_EACH_CONTAINER(slist, __sl, type, __cn, __n)
+#else
 #define SYS_SLIST_FOR_EACH_CONTAINER(__sl, __cn, __n)			\
 	Z_GENLIST_FOR_EACH_CONTAINER(slist, __sl, __cn, __n)
-
+#endif
 /**
  * @brief Provide the primitive to safely iterate on a list under a container
  * Note: __cn can be detached, it will not break the loop.
@@ -183,8 +187,15 @@ typedef struct _slist sys_slist_t;
  * @param __cns A pointer for the loop to run safely
  * @param __n The field name of sys_node_t within the container struct
  */
+#ifdef _MSC_VER
+#define SYS_SLIST_FOR_EACH_CONTAINER_SAFE(__sl, __cn, __cns, __n) \
+        for (sys_snode_t *_curr = (__sl)->head, *_next = _curr ? _curr->next : NULL; \
+             _curr != NULL && (__cn = (void *)((char *)_curr - ((char *)&(__cn->__n) - (char *)__cn)), 1) && (__cns = _next ? (void *)((char *)_next - ((char *)&(__cn->__n) - (char *)__cn)) : NULL, 1); \
+             _curr = _next, _next = _curr ? _curr->next : NULL)
+#else
 #define SYS_SLIST_FOR_EACH_CONTAINER_SAFE(__sl, __cn, __cns, __n)	\
 	Z_GENLIST_FOR_EACH_CONTAINER_SAFE(slist, __sl, __cn, __cns, __n)
+#endif
 
 
 /*

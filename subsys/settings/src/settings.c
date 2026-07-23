@@ -19,12 +19,24 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(settings, CONFIG_SETTINGS_LOG_LEVEL);
 
+#ifndef CONFIG_SETTINGS_DYNAMIC_HANDLERS
+#define CONFIG_SETTINGS_DYNAMIC_HANDLERS
+#endif
+
 #if defined(CONFIG_SETTINGS_DYNAMIC_HANDLERS)
 sys_slist_t settings_handlers;
 #endif /* CONFIG_SETTINGS_DYNAMIC_HANDLERS */
 
 #ifdef CONFIG_MULTITHREADING
 static K_MUTEX_DEFINE(settings_lock);
+#endif
+
+#if defined(_MSC_VER) && defined(CONFIG_MULTITHREADING)
+void initialize_settings_lock()
+{
+    k_mutex_init( &settings_lock );
+}
+REGISTER_PRE_MAIN( initialize_settings_lock )
 #endif
 
 void settings_store_init(void);
@@ -51,7 +63,7 @@ int settings_register_with_cprio(struct settings_handler *handler, int cprio)
 	settings_lock_take();
 
 	struct settings_handler *ch;
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, ch, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, struct settings_handler, ch, node) {
 		if (strcmp(handler->name, ch->name) == 0) {
 			rc = -EEXIST;
 			goto end;
@@ -176,7 +188,7 @@ struct settings_handler_static *settings_parse_and_lookup(const char *name,
 #if defined(CONFIG_SETTINGS_DYNAMIC_HANDLERS)
 	struct settings_handler *ch;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, ch, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, struct settings_handler, ch, node) {
 		if (!settings_name_steq(name, ch->name, &tmpnext)) {
 			continue;
 		}
@@ -292,7 +304,7 @@ int settings_commit_subtree(const char *subtree)
 		if (IS_ENABLED(CONFIG_SETTINGS_DYNAMIC_HANDLERS)) {
 			struct settings_handler *ch;
 
-			SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, ch, node) {
+			SYS_SLIST_FOR_EACH_CONTAINER(&settings_handlers, struct settings_handler, ch, node) {
 				if (subtree && !settings_name_steq(ch->name, subtree, NULL)) {
 					continue;
 				}

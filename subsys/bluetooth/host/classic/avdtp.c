@@ -9,7 +9,9 @@
 
 #include <zephyr/kernel.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <strings.h>
+#endif
 #include <errno.h>
 #include <zephyr/sys/atomic.h>
 #include <zephyr/sys/byteorder.h>
@@ -75,18 +77,23 @@ struct avdtp_buf_user_data {
 
 #define AVDTP_POOL_USER_DATA_SIZE MAX(CONFIG_BT_CONN_TX_USER_DATA_SIZE,\
 				      sizeof(struct avdtp_buf_user_data))
-
+#ifdef _MSC_VER
+static struct net_buf_pool avdtp_pool[50];
+#else
 NET_BUF_POOL_DEFINE(avdtp_pool, CONFIG_BT_MAX_CONN * 2,
 		    BT_L2CAP_BUF_SIZE(CONFIG_BT_AVDTP_SIGNAL_SDU_MAX),
 		    AVDTP_POOL_USER_DATA_SIZE, NULL);
-
+#endif
 /* When allocating from acl_tx_pool fail, keep at least one buf to send data, then the sending
  * callback trigger the fragmentation process.
  */
+#ifdef _MSC_VER
+static struct net_buf_pool avdtp_frag_pool[50];
+#else
 NET_BUF_POOL_DEFINE(avdtp_frag_pool, 1,
 		    BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
+#endif
 /* tx list for packets */
 sys_slist_t avdtp_tx_list = SYS_SLIST_STATIC_INIT(&avdtp_tx_list);
 static void avdtp_tx_processor(struct k_work *item);
@@ -683,7 +690,7 @@ static void avdtp_discover_cmd(struct bt_avdtp *session, struct net_buf *buf, ui
 	} else {
 		struct bt_avdtp_sep_data sep_data;
 
-		SYS_SLIST_FOR_EACH_CONTAINER(&seps, sep, _node) {
+		SYS_SLIST_FOR_EACH_CONTAINER(&seps, struct bt_avdtp_sep, sep, _node) {
 			memset(&sep_data, 0, sizeof(sep_data));
 			sep_data.inuse = sep->sep_info.inuse;
 			sep_data.id = sep->sep_info.id;
@@ -720,7 +727,7 @@ static struct bt_avdtp_sep *avdtp_get_sep(uint8_t stream_endpoint_id)
 {
 	struct bt_avdtp_sep *sep = NULL;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&seps, sep, _node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&seps, struct bt_avdtp_sep, sep, _node) {
 		if (sep->sep_info.id == stream_endpoint_id) {
 			break;
 		}

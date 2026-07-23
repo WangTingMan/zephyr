@@ -328,10 +328,12 @@ int bt_goep_transport_rfcomm_disconnect(struct bt_goep *goep)
 static sys_slist_t goep_l2cap_server = SYS_SLIST_STATIC_INIT(&goep_l2cap_server);
 
 #define GOEP_GET_TRANSPORT_V2(_chan) CONTAINER_OF((_chan), struct bt_goep_transport_v2, chan.chan)
-
+#ifdef _MSC_VER
+static struct net_buf_pool goep_rx_pool[20];
+#else
 NET_BUF_POOL_DEFINE(goep_rx_pool, BT_BUF_ACL_RX_COUNT, BT_BUF_ACL_SIZE(CONFIG_BT_BUF_ACL_RX_SIZE),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
+#endif
 static int goep_l2cap_recv(struct bt_l2cap_chan *chan, struct net_buf *buf)
 {
 	struct bt_goep_transport_v2 *goep_transport_v2 = GOEP_GET_TRANSPORT_V2(chan);

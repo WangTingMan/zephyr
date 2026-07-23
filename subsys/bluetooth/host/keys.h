@@ -80,7 +80,7 @@ struct bt_keys {
 	uint8_t id;
 	bt_addr_le_t addr;
 	uint8_t state;
-	uint8_t storage_start[0] __aligned(sizeof(void *));
+	uint8_t storage_start[1] /*__aligned(sizeof(void *))*/;
 	/* cfg_version and cfg_flags total 4 octets to maintain struct alignment */
 	uint8_t cfg_version;
 	uint8_t cfg_flags[3];
@@ -228,7 +228,7 @@ enum {
 struct bt_keys_link_key {
 	bt_addr_t addr;
 	uint8_t enc_key_size;
-	uint8_t storage_start[0] __aligned(sizeof(void *));
+	uint8_t storage_start[1] /*__aligned(sizeof(void *))*/;
 	uint8_t flags;
 	uint8_t val[16];
 #if (defined(CONFIG_BT_KEYS_OVERWRITE_OLDEST))

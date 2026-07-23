@@ -1,0 +1,251 @@
+#ifndef _GLOBAL_CONFIGS_H_
+#define _GLOBAL_CONFIGS_H_
+#include <stdbool.h>
+
+#ifdef _MSC_VER
+#define __LITTLE_ENDIAN__
+#endif
+
+#define CONFIG_PICOLIBC
+#define CONFIG_PRINTK
+
+#define _DO_CONCAT_DETAIL(x, y) x ## y
+#ifndef _CONCAT
+#define _CONCAT(x, y) _DO_CONCAT_DETAIL(x, y)
+#endif
+
+#ifndef __printf_like
+#define __printf_like(...)
+#endif
+
+#ifndef __subsystem
+#define __subsystem
+#endif
+
+#ifndef	__unused
+#define __unused
+#endif
+
+#ifndef __syscall
+#define __syscall
+#endif
+
+#ifndef __used
+#define __used
+#endif
+
+#ifndef __alignof__
+#ifdef __cplusplus
+#define __alignof__ alignof
+#else
+#define __alignof__ _Alignof
+#endif
+#endif
+
+#ifndef __weak
+#define __weak
+#endif
+
+#ifndef CONFIG_OBJ_CORE_MUTEX
+#define CONFIG_OBJ_CORE_MUTEX
+#endif
+
+#ifndef Z_DECL_ALIGN
+#define Z_DECL_ALIGN(type) type
+#endif
+
+#ifndef ARG_UNUSED
+#define ARG_UNUSED(...)
+#endif
+
+#ifndef CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC
+#define CONFIG_SYS_CLOCK_HW_CYCLES_PER_SEC 1000
+#endif
+
+#define CONFIG_LOG_TIMESTAMP_64BIT
+
+#ifndef CONFIG_NUM_PREEMPT_PRIORITIES
+#define CONFIG_NUM_PREEMPT_PRIORITIES 10
+#endif
+
+#ifndef CONFIG_NUM_COOP_PRIORITIES
+#define CONFIG_NUM_COOP_PRIORITIES 10
+#endif
+
+#ifndef CONFIG_MP_MAX_NUM_CPUS
+#define CONFIG_MP_MAX_NUM_CPUS 8
+#endif
+
+#ifndef CONFIG_NONZERO_SPINLOCK_SIZE
+#define CONFIG_NONZERO_SPINLOCK_SIZE
+#endif
+
+#ifndef FUNC_NORETURN
+#define FUNC_NORETURN
+#endif
+
+#ifndef __packed
+#define __packed
+#endif
+
+#ifndef __aligned
+#define __aligned(a) __declspec(align(a))
+#endif
+
+#ifndef ARCH_STACK_PTR_ALIGN
+#define ARCH_STACK_PTR_ALIGN 16
+#endif
+
+#ifndef __deprecated
+#define __deprecated
+#endif
+
+#ifndef __maybe_unused
+#define __maybe_unused
+#endif
+
+#ifndef CONFIG_TIMEOUT_64BIT
+#define CONFIG_TIMEOUT_64BIT 1
+#endif
+
+#define CONFIG_SYS_CLOCK_TICKS_PER_SEC 1000
+#define CONFIG_SYS_CLOCK_MAX_TIMEOUT_DAYS 1000000
+
+#define __attribute_const__
+
+#ifndef compiler_barrier
+#define compiler_barrier(...)
+#endif
+
+#ifndef CONFIG_TASK_WDT_CHANNELS
+#define CONFIG_TASK_WDT_CHANNELS 30
+#endif
+
+#ifndef __attribute_nonnull
+#define __attribute_nonnull(...)
+#endif
+
+#define CONFIG_CBPRINTF_PACKAGE_LONGDOUBLE 0
+#define CONFIG_SHELL_CMD_BUFF_SIZE 1
+#define CONFIG_SHELL_PRINTF_BUFF_SIZE 1
+
+#define __must_check
+
+#ifndef CONFIG_MULTITHREADING
+#define CONFIG_MULTITHREADING
+#endif
+
+#define CONFIG_BT_ISO_UNICAST
+#define CONFIG_BT_ID_MAX 5
+#define CONFIG_BT_LIM_ADV_TIMEOUT 100
+#define CONFIG_BT_BROADCASTER 1
+
+#define CONFIG_BT_BUF_EVT_RX_COUNT 10
+#define CONFIG_BT_BUF_ACL_TX_COUNT 5
+#define CONFIG_BT_BUF_CMD_TX_SIZE 3
+#define CONFIG_BT_LONG_WQ_STACK_SIZE 3
+#define CONFIG_BT_LONG_WQ_PRIO 1
+#define CONFIG_BT_ATT_TX_COUNT 5
+#define CONFIG_BT_CONN
+#define CONFIG_BT_MAX_PAIRED 2
+#define CONFIG_BT_MAX_CONN 2
+#define CONFIG_BT_BUF_ACL_RX_SIZE 1024
+#define CONFIG_BT_L2CAP_TX_MTU 512
+#define CONFIG_BT_CONN_PARAM_UPDATE_TIMEOUT 52
+#define CONFIG_BT_ISO
+#define CONFIG_BT_ISO_MAX_CHAN 5
+#define CONFIG_BT_ISO_TX_BUF_COUNT 5
+#define CONFIG_BT_GATT_CLIENT
+#define CONFIG_BT_GATT_SERVICE_CHANGED
+#define CONFIG_BT_GATT_CACHING
+#define CONFIG_BT_SETTINGS 1
+#define CONFIG_BT_SMP
+#define CONFIG_BT_SETTINGS_CCC_STORE_MAX 1
+#define CONFIG_BT_BUF_CMD_TX_COUNT 2
+#define CONFIG_BT_RECV_WORKQ_BT
+#define CONFIG_BT_RX_STACK_SIZE 512
+#define CONFIG_BT_RX_PRIO 20
+#define CONFIG_BT_DEVICE_APPEARANCE_DYNAMIC
+#define CONFIG_BT_DEVICE_APPEARANCE 10
+#define CONFIG_BT_DEVICE_NAME "zephyr_bluetooth"
+#define CONFIG_BT_DF_CONNECTIONLESS_CTE_RX
+#define CONFIG_BT_PER_ADV_SYNC
+#define CONFIG_BT_EXT_ADV
+#define CONFIG_BT_EXT_ADV_MAX_ADV_SET 15
+#define CONFIG_BT_PER_ADV_SYNC_MAX 15
+#define CONFIG_BT_EXT_ADV_REASSEMBLY_TIMEOUT 500
+#define CONFIG_BT_DF_VS_CL_IQ_REPORT_16_BITS_IQ_SAMPLES
+#define CONFIG_BT_MONITOR
+#define CONFIG_BT_BACKGROUND_SCAN_INTERVAL 102
+#define CONFIG_BT_BACKGROUND_SCAN_WINDOW 102
+#define CONFIG_BT_AVRCP_BROWSING
+#define CONFIG_BT_AVRCP_BROWSING_L2CAP_MTU 50
+#define CONFIG_BT_L2CAP_RET_FC 1
+#define CONFIG_BT_L2CAP_MAX_WINDOW_SIZE 10
+#define CONFIG_BT_L2CAP_BR_MONITOR_TIMEOUT 50
+#define CONFIG_BT_CLASSIC 1
+#define CONFIG_BT_BR_MIN_ENC_KEY_SIZE 64
+#define CONFIG_BT_COD 523
+#define CONFIG_BT_PAGE_TIMEOUT 5128
+#define CONFIG_BT_LIMITED_DISCOVERABLE_DURATION 512
+#define CONFIG_BT_DEVICE_VENDOR_ID 0x1278
+#define CONFIG_BT_DEVICE_PRODUCT_ID 0x7812
+#define CONFIG_BT_DEVICE_VERSION 0x89
+#define CONFIG_BT_GOEP_RFCOMM_MTU 651
+#define CONFIG_BT_GOEP_L2CAP_MTU 512
+#define CONFIG_BT_HFP_AG_OUTGOING_TIMEOUT 10000
+#define CONFIG_BT_HFP_AG_INCOMING_TIMEOUT 10000
+#define CONFIG_BT_HFP_AG_ALERTING_TIMEOUT 10000
+#define CONFIG_BT_HFP_AG_PHONE_NUMBER_MAX_LEN 11
+#define CONFIG_BT_HFP_AG_MAX_CALLS 3
+#define CONFIG_BT_HFP_AG_TX_BUF_COUNT 10
+#define CONFIG_BT_HFP_AG_GET_ONGOING_CALL_TIMEOUT 1000
+#define CONFIG_BT_HFP_AG_RING_NOTIFY_INTERVAL 5000
+#define CONFIG_BT_HFP_HF_MAX_CALLS 3
+#define CONFIG_BT_CONN_TX_USER_DATA_SIZE 501
+#define CONFIG_BT_L2CAP_MPS 59
+#define CONFIG_BT_L2CAP_BR_RET_TIMEOUT 2000
+#define CONFIG_BT_L2CAP_RX_FLUSH_TO 2000
+#define CONFIG_BT_RFCOMM_L2CAP_MTU 675
+#define CONFIG_BT_MAX_SCO_CONN 3
+#define CONFIG_BT_REMOTE_INFO
+#define CONFIG_BT_TRANSMIT_POWER_CONTROL
+#define CONFIG_BT_CENTRAL
+#define CONFIG_BT_ISO_RX
+#define CONFIG_BT_CREATE_CONN_TIMEOUT 5120
+#define CONFIG_BT_ISO_RX_BUF_COUNT 10
+#define CONFIG_BT_SMP_MIN_ENC_KEY_SIZE 2
+#define CONFIG_BT_USER_CONN_PARAM_REJECTED
+#define CONFIG_BT_LOG_SNIFFER_INFO
+#define CONFIG_BT_L2CAP_DYNAMIC_CHANNEL
+#define CONFIG_BT_L2CAP_CONN_RTX_TIMEOUT 2000
+#define CONFIG_BT_OBSERVER
+#define CONFIG_BT_BUF_EVT_RX_SIZE 255
+#define CONFIG_BT_ISO_RX_MTU 512
+#define CONFIG_BT_BUF_ACL_TX_SIZE 512
+#define CONFIG_BT_ISO_TX_MTU 512
+#define CONFIG_BT_BUF_SYNC_EVT_POOL_COUNT 20
+#define CONFIG_BT_BUF_EVT_DISCARDABLE_COUNT 20
+#define CONFIG_BT_BUF_EVT_DISCARDABLE_SIZE 20
+#define CONFIG_BT_CHANNEL_SOUNDING_REASSEMBLY_BUFFER_CNT 10
+#define CONFIG_BT_CHANNEL_SOUNDING_REASSEMBLY_BUFFER_SIZE 10
+#define CONFIG_BT_L2CAP_TX_BUF_COUNT 20
+#define CONFIG_BT_HCI_HOST
+#define CONFIG_BT_BUF_ACL_RX_COUNT_EXTRA 10
+#define CONFIG_BT_DRIVER_RX_HIGH_PRIO 0
+#define CONFIG_BT_HCI_TX_PRIO 100
+#define CONFIG_BT_AVRCP_VD_RX_SIZE 512
+#define CONFIG_BT_DEVICE_NAME_DYNAMIC
+#define CONFIG_BT_DEVICE_NAME_MAX 48
+#define CONFIG_BT_HOST_CRYPTO 1
+
+#define K_THREAD_STACK_DEFINE(sym, size) \
+        __declspec(align(8)) uint8_t sym[size]
+#define K_THREAD_STACK_DECLARE(sym, size) \
+        extern __declspec(align(8)) uint8_t sym[size]
+#define Z_THREAD_STACK_BUFFER(sym) ((uint8_t *)(sym))
+
+#define ESHUTDOWN 90
+
+#endif
+

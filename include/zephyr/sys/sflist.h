@@ -27,7 +27,7 @@
 
 #ifndef ZEPHYR_INCLUDE_SYS_SFLIST_H_
 #define ZEPHYR_INCLUDE_SYS_SFLIST_H_
-
+#include <global_configs.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <zephyr/sys/__assert.h>

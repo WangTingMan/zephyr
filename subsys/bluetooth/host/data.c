@@ -82,3 +82,51 @@ size_t bt_data_serialize(const struct bt_data *input, uint8_t *output)
 
 	return data_len + 1;
 }
+
+uint16_t ltv_parser( uint8_t const* a_raw_data, uint16_t a_raw_data_size,
+    struct bt_data* a_out, uint16_t a_max_ltv_to_use )
+{
+    if( ( a_raw_data == NULL ) || ( a_out == NULL ) || ( a_max_ltv_to_use == 0U ) ) {
+        return 0U;
+    }
+
+    uint16_t parsed_cnt = 0U;
+    uint16_t offset = 0U;
+
+    while( ( offset < a_raw_data_size ) && ( parsed_cnt < a_max_ltv_to_use ) ) {
+        if( ( offset + 1U ) > a_raw_data_size ) {
+            break;
+        }
+
+        const uint8_t ltv_total_len = a_raw_data[offset];
+        const uint8_t type_offset = offset + 1U;
+        const uint8_t value_offset = type_offset + 1U;
+
+        const uint16_t single_ltv_bytes = 1U + ltv_total_len;
+
+        if( ( offset + single_ltv_bytes ) > a_raw_data_size ) {
+            break;
+        }
+
+        uint8_t ad_type = a_raw_data[type_offset];
+        if( ad_type == 0U ) {
+            break;
+        }
+
+        uint8_t len = ( ltv_total_len >= 1U ) ? ( ltv_total_len - 1U ) : 0U;
+
+        if( len == 0x00 )
+        {
+            break;
+        }
+
+        a_out[parsed_cnt].type = ad_type;
+        a_out[parsed_cnt].data_len = len;
+        a_out[parsed_cnt].data = &a_raw_data[value_offset];
+
+        parsed_cnt++;
+        offset += single_ltv_bytes;
+    }
+
+    return parsed_cnt;
+}

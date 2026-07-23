@@ -290,7 +290,7 @@ typedef int (*shell_dict_cmd_handler)(const struct shell *sh, size_t argc,
 #if (defined(CONFIG_ARCH_POSIX) && defined(CONFIG_64BIT)) || defined(CONFIG_X86_64)
 #define Z_SHELL_STATIC_ENTRY_PADDING 24
 #else
-#define Z_SHELL_STATIC_ENTRY_PADDING 0
+#define Z_SHELL_STATIC_ENTRY_PADDING 1
 #endif
 
 /**

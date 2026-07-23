@@ -16,8 +16,9 @@
 
 #ifndef ZEPHYR_INCLUDE_DEVICETREE_H_
 #define ZEPHYR_INCLUDE_DEVICETREE_H_
-
+#ifndef _MSC_VER
 #include <zephyr/devicetree_generated.h>
+#endif
 #include <zephyr/irq_multilevel.h>
 
 #if !defined(_LINKER) && !defined(_ASMLANGUAGE)
@@ -3281,6 +3282,10 @@
  * @param ... variable number of arguments to pass to @p fn
  */
 #define DT_FOREACH_NODE_VARGS(fn, ...) DT_FOREACH_VARGS_HELPER(fn, __VA_ARGS__)
+
+#ifdef _MSC_VER
+#define DT_FOREACH_OKAY_HELPER(fn)
+#endif
 
 /**
  * @brief Invokes @p fn for every status `okay` node in the tree.

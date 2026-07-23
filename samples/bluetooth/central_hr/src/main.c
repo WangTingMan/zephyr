@@ -19,6 +19,28 @@
 #include <zephyr/bluetooth/gatt.h>
 #include <zephyr/sys/byteorder.h>
 
+#if __has_include(<log/log.h>)
+#include <log/log.h>
+#define HAS_ANDROID_LIKE_LOG
+#endif
+
+#ifdef _MSC_VER
+#pragma comment(lib, "bluetooth.lib")
+#pragma comment(lib, "zephyr_runtime.lib")
+#pragma comment(lib, "utils.lib")
+#pragma comment(lib, "z_crc.lib")
+#pragma comment(lib, "z_settings.lib")
+#pragma comment(lib, "mbedtls.lib")
+#pragma comment(lib, "bcrypt.lib")
+#pragma comment(lib, "libChromeBase.lib")
+#pragma comment(lib, "ws2_32.lib")
+
+#ifdef HAS_ANDROID_LIKE_LOG
+#pragma comment(lib, "liblog.lib")
+#pragma comment(lib, "libcutils.lib")
+#endif
+#endif
+
 static void start_scan(void);
 
 static struct bt_conn *default_conn;
@@ -260,6 +282,9 @@ BT_CONN_CB_DEFINE(conn_callbacks) = {
 
 int main(void)
 {
+#ifdef _MSC_VER
+    k_kernel_init();
+#endif
 	int err;
 	err = bt_enable(NULL);
 
@@ -271,5 +296,7 @@ int main(void)
 	printk("Bluetooth initialized\n");
 
 	start_scan();
+
+    k_msleep(100000000);
 	return 0;
 }

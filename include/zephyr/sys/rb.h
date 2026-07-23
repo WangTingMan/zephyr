@@ -52,7 +52,9 @@
 #define alloca __builtin_alloca
 #endif
 #else
+#ifndef _MSC_VER
 #include <alloca.h>
+#endif
 #endif
 
 /**

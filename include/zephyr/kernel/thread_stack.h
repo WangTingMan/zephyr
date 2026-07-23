@@ -20,7 +20,7 @@
 
 #ifndef ZEPHYR_INCLUDE_KERNEL_THREAD_STACK_H
 #define ZEPHYR_INCLUDE_KERNEL_THREAD_STACK_H
-
+#include <global_configs.h>
 #if !defined(_ASMLANGUAGE)
 #include <zephyr/arch/cpu.h>
 #include <zephyr/sys/util.h>
@@ -44,9 +44,11 @@ extern "C" {
  *
  * Stacks should always be created with K_THREAD_STACK_DEFINE().
  */
+ #pragma pack(1)
 struct __packed z_thread_stack_element {
 	char data;
 };
+#pragma pack()
 
 /**
  * @typedef k_thread_stack_t
@@ -391,10 +393,14 @@ static inline char *K_KERNEL_STACK_BUFFER(k_thread_stack_t *sym)
 #define K_THREAD_STACK_RESERVED		K_KERNEL_STACK_RESERVED
 #define K_THREAD_STACK_SIZEOF		K_KERNEL_STACK_SIZEOF
 #define K_THREAD_STACK_LEN		K_KERNEL_STACK_LEN
+#ifndef K_THREAD_STACK_DEFINE
 #define K_THREAD_STACK_DEFINE		K_KERNEL_STACK_DEFINE
+#endif
 #define K_THREAD_STACK_ARRAY_DEFINE	K_KERNEL_STACK_ARRAY_DEFINE
 #define K_THREAD_STACK_BUFFER		K_KERNEL_STACK_BUFFER
+#ifndef K_THREAD_STACK_DECLARE
 #define K_THREAD_STACK_DECLARE		K_KERNEL_STACK_DECLARE
+#endif
 #define K_THREAD_STACK_ARRAY_DECLARE	K_KERNEL_STACK_ARRAY_DECLARE
 #else
 /**

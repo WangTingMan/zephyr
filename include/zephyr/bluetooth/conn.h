@@ -2672,11 +2672,18 @@ int bt_conn_cb_unregister(struct bt_conn_cb *cb);
  *
  *  @param _name Name of callback structure.
  */
+#ifdef _MSC_VER
+#define BT_CONN_CB_DEFINE(_name) struct bt_conn_cb _name
+/**
+ * Need call:
+ * bt_conn_cb_register(&_name);
+ */
+#else
 #define BT_CONN_CB_DEFINE(_name)					\
 	static const STRUCT_SECTION_ITERABLE(bt_conn_cb,		\
 						_CONCAT(bt_conn_cb_,	\
 							_name))
-
+#endif
 /** Converts a security error to string.
  *
  * @return The string representation of the security error code.

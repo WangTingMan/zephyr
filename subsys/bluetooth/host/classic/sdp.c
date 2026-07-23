@@ -79,7 +79,6 @@ static struct bt_sdp bt_sdp_pool[CONFIG_BT_MAX_CONN];
 /* Pool for outgoing SDP packets */
 NET_BUF_POOL_FIXED_DEFINE(sdp_pool, CONFIG_BT_MAX_CONN, BT_L2CAP_BUF_SIZE(SDP_MTU),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
 #define SDP_CLIENT_CHAN(_ch) CONTAINER_OF(_ch, struct bt_sdp_client, chan.chan)
 
 #define SDP_CLIENT_MTU 64
@@ -894,9 +893,11 @@ static uint32_t copy_attribute(const struct bt_sdp_data_elem *elem, struct net_b
 			net_buf_simple_add_be64(&attr_buf, *((const uint64_t *)elem->data));
 		} else {
 			__ASSERT(seq_size == 0x10, "Invalid sequence size");
-
+#ifdef _MSC_VER		      
+			uint8_t val[10];
+#else
 			uint8_t val[seq_size];
-
+#endif
 			sys_memcpy_swap(val, elem->data, sizeof(val));
 			net_buf_simple_add_mem(&attr_buf, val, seq_size);
 		}

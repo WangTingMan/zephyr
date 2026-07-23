@@ -53,10 +53,10 @@ extern "C" {
  */
 static inline const struct shell *shell_backend_get(uint32_t idx)
 {
-	const struct shell *backend;
-
+	const struct shell *backend = NULL;
+#ifndef _MSC_VER
 	STRUCT_SECTION_GET(shell, idx, &backend);
-
+#endif
 	return backend;
 }
 
@@ -67,10 +67,10 @@ static inline const struct shell *shell_backend_get(uint32_t idx)
  */
 static inline int shell_backend_count_get(void)
 {
-	int cnt;
-
+	int cnt = 0;
+#ifndef _MSC_VER
 	STRUCT_SECTION_COUNT(shell, &cnt);
-
+#endif
 	return cnt;
 }
 

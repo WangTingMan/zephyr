@@ -74,7 +74,7 @@
 #define LOG_LEVEL CONFIG_BT_HCI_CORE_LOG_LEVEL
 LOG_MODULE_REGISTER(bt_hci_core);
 
-#if DT_HAS_CHOSEN(zephyr_bt_hci)
+#if DT_HAS_CHOSEN(zephyr_bt_hci) || defined(_MSC_VER)
 #define BT_HCI_NODE   DT_CHOSEN(zephyr_bt_hci)
 #define BT_HCI_DEV    DEVICE_DT_GET(BT_HCI_NODE)
 #define BT_HCI_BUS    BT_DT_HCI_BUS_GET(BT_HCI_NODE)
@@ -87,6 +87,11 @@ BUILD_ASSERT(IS_ENABLED(CONFIG_ZTEST), "Missing DT chosen property for HCI");
 #define BT_HCI_BUS    0
 #define BT_HCI_NAME   ""
 #define BT_HCI_QUIRKS 0
+#endif
+
+#ifdef _MSC_VER
+#define BT_HCI_NODE_NAME DEVICE_DT_NAME_GET(BT_HCI_NODE)
+extern struct device BT_HCI_NODE_NAME;
 #endif
 
 /* These checks are added to warn if the number of ACL or ISO packets in Controller is not equal to
@@ -118,7 +123,11 @@ static void rx_work_handler(struct k_work *work);
 static K_WORK_DEFINE(rx_work, rx_work_handler);
 #if defined(CONFIG_BT_RECV_WORKQ_BT)
 static struct k_work_q bt_workq;
+#ifdef _MSC_VER
+static k_thread_stack_t rx_thread_stack[20];
+#else
 static K_KERNEL_STACK_DEFINE(rx_thread_stack, CONFIG_BT_RX_STACK_SIZE);
+#endif
 #endif /* CONFIG_BT_RECV_WORKQ_BT */
 
 static void init_work(struct k_work *work);
@@ -185,7 +194,6 @@ void bt_hci_cmd_state_set_init(struct net_buf *buf,
  */
 #define CMD_BUF_SIZE MAX(BT_BUF_EVT_RX_SIZE, BT_BUF_CMD_TX_SIZE)
 NET_BUF_POOL_FIXED_DEFINE(hci_cmd_pool, BT_BUF_CMD_TX_COUNT, CMD_BUF_SIZE, 0, NULL);
-
 struct event_handler {
 	uint8_t event;
 	uint8_t min_len;
@@ -2183,7 +2191,7 @@ static void unpair(uint8_t id, const bt_addr_le_t *addr)
 
 #if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_CLASSIC)
 	struct bt_conn_auth_info_cb *listener, *next;
-
+	listener = next = NULL;
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&bt_auth_info_cbs, listener,
 					  next, node) {
 		if (listener->bond_deleted) {
@@ -4622,6 +4630,11 @@ static int bt_init(void)
 			return err;
 		}
 	}
+
+#ifdef _MSC_VER
+    settings_load();
+    LOG_DBG( "we need load the settings here to enable bluetooth...but do not know why?" );
+#endif
 
 	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
 		if (!bt_dev.id_count) {

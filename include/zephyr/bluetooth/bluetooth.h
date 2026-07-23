@@ -3011,6 +3011,24 @@ int bt_le_per_adv_set_response_data(struct bt_le_per_adv_sync *per_adv_sync,
 bool bt_le_bond_exists(uint8_t id, const bt_addr_le_t *addr);
 
 /**
+ * @brief Parse raw LTV formatted binary stream into bt_data array entries.
+ *
+ * @details Supports generic LTV structures used in Advertising Data, Scan Response Data
+ * and Extended Inquiry Response (EIR) payloads. Parsing stops when raw data is consumed
+ * or output array capacity is exhausted. Context-specific AD Type validation is not
+ * performed within this parser.
+ *
+ * @param a_raw_data Pointer to input raw LTV binary buffer.
+ * @param a_raw_data_size Total byte length of input raw data buffer.
+ * @param a_out Pointer to output bt_data array for parsed LTV entries.
+ * @param a_max_ltv_to_use Maximum available bt_data entries in @p a_out array.
+ *
+ * @return Number of successfully parsed LTV (bt_data) structures.
+ */
+uint16_t ltv_parser(uint8_t const* a_raw_data, uint16_t a_raw_data_size,
+    struct bt_data* a_out, uint16_t a_max_ltv_to_use);
+
+/**
  * @}
  */
 

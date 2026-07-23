@@ -366,8 +366,37 @@ static inline char z_log_minimal_level_to_char(int level)
 		}                                                                                  \
 	} while (false)                                                                            \
 	TOOLCHAIN_ENABLE_CLANG_WARNING(TOOLCHAIN_WARNING_USED_BUT_MARKED_UNUSED)
+#ifdef _MSC_VER
+struct kk__log_message
+{
+    /** {@link log_priority} values. */
+    int priority;
 
+    /** Optional file name, may be set to nullptr. */
+    const char* file;
+
+    /** Optional line number, ignore if file is nullptr. */
+    uint32_t line;
+
+    /** The log message itself. */
+    const char* message;
+};
+
+int k__log_print
+    (
+    int level,
+    const char* file,
+    unsigned int line,
+    const char* fmt,
+    ...
+    );
+typedef (*logger_sink_type)( struct kk__log_message*);
+void k_set_log_sinker( logger_sink_type a_sinker );
+#define KK_LOG(priority, fmt, ...) k__log_print(priority, __FILE__, __LINE__, fmt, ##__VA_ARGS__)
+#define Z_LOG(_level, ...) KK_LOG(_level, ##__VA_ARGS__)
+#else
 #define Z_LOG(_level, ...)                 Z_LOG2(_level, 0, Z_LOG_CURRENT_DATA(), __VA_ARGS__)
+#endif
 #define Z_LOG_INSTANCE(_level, _inst, ...) Z_LOG2(_level, 1, Z_LOG_INST(_inst), __VA_ARGS__)
 
 /*****************************************************************************/
@@ -478,10 +507,10 @@ static inline char z_log_minimal_level_to_char(int level)
  *	   formatted (raw string).
  */
 #define LOG_LEVEL_INTERNAL_RAW_STRING LOG_LEVEL_NONE
-
+#ifndef _MSC_VER
 TYPE_SECTION_START_EXTERN(struct log_source_const_data, log_const);
 TYPE_SECTION_END_EXTERN(struct log_source_const_data, log_const);
-
+#endif
 /** @brief Create message for logging printk-like string or a raw string.
  *
  * Part of printk string processing is appending of carriage return after any
@@ -523,15 +552,20 @@ TYPE_SECTION_END_EXTERN(struct log_source_const_data, log_const);
 static inline uint32_t log_const_source_id(
 				const struct log_source_const_data *data)
 {
+#ifdef _MSC_VER
+	return 0;
+#else
 	return ((const uint8_t *)data - (uint8_t *)TYPE_SECTION_START(log_const))/
 			sizeof(struct log_source_const_data);
+#endif
 }
 
+#ifndef _MSC_VER
 /** @cond INTERNAL_HIDDEN */
 
 TYPE_SECTION_START_EXTERN(struct log_source_dynamic_data, log_dynamic);
 TYPE_SECTION_END_EXTERN(struct log_source_dynamic_data, log_dynamic);
-
+#endif
 /** @brief Creates name of variable and section for runtime log data.
  *
  *  @param _name Name.
@@ -554,8 +588,12 @@ TYPE_SECTION_END_EXTERN(struct log_source_dynamic_data, log_dynamic);
  */
 static inline uint32_t log_dynamic_source_id(const struct log_source_dynamic_data *data)
 {
+#ifdef _MSC_VER
+	return 0;
+#else
 	return ((const uint8_t *)data - (const uint8_t *)TYPE_SECTION_START(log_dynamic))/
 			sizeof(struct log_source_dynamic_data);
+#endif
 }
 
 /** @brief Get index of the log source based on the address of the associated data.

@@ -8,7 +8,9 @@
 #ifndef ZEPHYR_INCLUDE_SYSCALL_H_
 #define ZEPHYR_INCLUDE_SYSCALL_H_
 
+#ifndef _MSC_VER
 #include <zephyr/syscall_list.h>
+#endif
 #include <zephyr/arch/syscall.h>
 #include <stdbool.h>
 

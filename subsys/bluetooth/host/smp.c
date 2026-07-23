@@ -954,7 +954,7 @@ static void smp_pairing_br_complete(struct bt_smp_br *smp, uint8_t status)
 
 	if (status) {
 		struct bt_conn_auth_info_cb *listener, *next;
-
+		listener = next = NULL;
 		if (keys) {
 			bt_keys_clear(keys);
 		}
@@ -969,7 +969,7 @@ static void smp_pairing_br_complete(struct bt_smp_br *smp, uint8_t status)
 	} else {
 		bool bond_flag = !atomic_test_bit(conn->flags, BT_CONN_BR_NOBOND);
 		struct bt_conn_auth_info_cb *listener, *next;
-
+		listener = next = NULL;
 		if (keys) {
 			smp_br_id_add_replace(keys);
 		}
@@ -1964,6 +1964,7 @@ static void smp_pairing_complete(struct bt_smp *smp, uint8_t status)
 		bool bond_flag = atomic_test_bit(smp->flags, SMP_FLAG_BOND);
 		struct bt_conn_auth_info_cb *listener, *next;
 
+		listener = next = NULL;
 		if (IS_ENABLED(CONFIG_BT_LOG_SNIFFER_INFO)) {
 			bt_keys_show_sniffer_info(conn->le.keys, NULL);
 		}
@@ -2003,7 +2004,7 @@ static void smp_pairing_complete(struct bt_smp *smp, uint8_t status)
 		 */
 		if (atomic_test_bit(smp->flags, SMP_FLAG_PAIRING)) {
 			struct bt_conn_auth_info_cb *listener, *next;
-
+			listener = next = NULL;
 			SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&bt_auth_info_cbs,
 							  listener, next,
 							  node) {

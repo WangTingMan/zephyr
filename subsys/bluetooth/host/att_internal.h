@@ -38,7 +38,7 @@
 #define BT_LOCAL_ATT_MTU_UATT MIN(BT_L2CAP_RX_MTU, BT_L2CAP_TX_MTU)
 
 #define BT_ATT_BUF_SIZE MAX(BT_LOCAL_ATT_MTU_UATT, BT_LOCAL_ATT_MTU_EATT)
-
+#pragma pack(1)
 struct bt_att_hdr {
 	uint8_t  code;
 } __packed;
@@ -113,19 +113,19 @@ struct bt_att_find_type_rsp {
 struct bt_att_read_type_req {
 	uint16_t start_handle;
 	uint16_t end_handle;
-	uint8_t  uuid[];
+	uint8_t  uuid[1];
 } __packed;
 
 struct bt_att_data {
 	uint16_t handle;
-	uint8_t  value[];
+	uint8_t  value[1];
 } __packed;
 
 /* Read By Type Response */
 #define BT_ATT_OP_READ_TYPE_RSP			0x09
 struct bt_att_read_type_rsp {
 	uint8_t  len;
-	struct bt_att_data data[];
+	struct bt_att_data data[1];
 } __packed;
 
 /* Read Request */
@@ -172,20 +172,20 @@ struct bt_att_read_mult_rsp {
 struct bt_att_read_group_req {
 	uint16_t start_handle;
 	uint16_t end_handle;
-	uint8_t  uuid[];
+	uint8_t  uuid[1];
 } __packed;
 
 struct bt_att_group_data {
 	uint16_t start_handle;
 	uint16_t end_handle;
-	uint8_t  value[];
+	uint8_t  value[1];
 } __packed;
 
 /* Read by Group Type Response */
 #define BT_ATT_OP_READ_GROUP_RSP		0x11
 struct bt_att_read_group_rsp {
 	uint8_t  len;
-	struct bt_att_group_data data[];
+	struct bt_att_group_data data[1];
 } __packed;
 
 /* Write Request */
@@ -280,7 +280,7 @@ struct bt_att_signed_write_cmd {
 	uint16_t handle;
 	uint8_t  value[];
 } __packed;
-
+#pragma pack()
 typedef void (*bt_att_func_t)(struct bt_conn *conn, int err,
 			      const void *pdu, uint16_t length,
 			      void *user_data);

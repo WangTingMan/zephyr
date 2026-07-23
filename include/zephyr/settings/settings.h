@@ -218,7 +218,23 @@ struct settings_handler_static {
  * This creates a variable @c _hname prepended by @c settings_handler_.
  *
  */
-
+#ifdef _MSC_VER
+#define SETTINGS_STATIC_HANDLER_DEFINE_WITH_CPRIO(_hname, _tree, _get, _set, _commit, _export,     \
+						  _cprio)                                          \
+	const STRUCT_SECTION_ITERABLE(settings_handler_static, settings_handler_##_hname) = {      \
+		.name = _tree,                                                                     \
+		.cprio = _cprio,                                                                   \
+		.h_get = _get,                                                                     \
+		.h_set = _set,                                                                     \
+		.h_commit = _commit,                                                               \
+		.h_export = _export,                                                               \
+	};                                                                                      \
+    static void _CONCAT(_hname, __LINE__)()                                                 \
+    {                                                                                       \
+        register_settings_handler( &settings_handler_##_hname );                            \
+    }                                                                                       \
+    REGISTER_PRE_MAIN( _CONCAT( _hname, __LINE__ ) )
+#else
 #define SETTINGS_STATIC_HANDLER_DEFINE_WITH_CPRIO(_hname, _tree, _get, _set, _commit, _export,     \
 						  _cprio)                                          \
 	const STRUCT_SECTION_ITERABLE(settings_handler_static, settings_handler_##_hname) = {      \
@@ -229,7 +245,7 @@ struct settings_handler_static {
 		.h_commit = _commit,                                                               \
 		.h_export = _export,                                                               \
 	}
-
+#endif
 /**
  * Define a static handler for settings items
  *

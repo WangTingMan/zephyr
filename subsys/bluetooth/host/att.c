@@ -10,8 +10,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-
+#ifndef _MSC_VER
 #include <zephyr/autoconf.h>
+#endif
 #include <zephyr/bluetooth/addr.h>
 #include <zephyr/bluetooth/att.h>
 #include <zephyr/bluetooth/bluetooth.h>
@@ -80,10 +81,12 @@ struct bt_attr_data {
 NET_BUF_POOL_DEFINE(prep_pool, CONFIG_BT_ATT_PREPARE_COUNT, BT_ATT_BUF_SIZE,
 		    sizeof(struct bt_attr_data), NULL);
 #endif /* CONFIG_BT_ATT_PREPARE_COUNT */
-
+#ifdef _MSC_VER
+struct k_mem_slab req_slab[50];
+#else
 K_MEM_SLAB_DEFINE_STATIC_TYPE(req_slab, struct bt_att_req,
 			      CONFIG_BT_ATT_TX_COUNT);
-
+#endif
 enum {
 	ATT_CONNECTED,
 	ATT_ENHANCED,
@@ -166,11 +169,15 @@ struct bt_att {
 	} eatt;
 #endif /* CONFIG_BT_EATT */
 };
-
+#ifdef _MSC_VER
+struct k_mem_slab att_slab[50];
+struct k_mem_slab chan_slab[50];
+#else
 K_MEM_SLAB_DEFINE_STATIC_TYPE(att_slab, struct bt_att,
 			      CONFIG_BT_MAX_CONN);
 K_MEM_SLAB_DEFINE_STATIC_TYPE(chan_slab, struct bt_att_chan,
 			      CONFIG_BT_MAX_CONN * ATT_CHAN_MAX);
+#endif
 static struct bt_att_req cancel;
 
 /** The thread ATT response handlers likely run on.
@@ -351,11 +358,13 @@ static void att_tx_destroy(struct net_buf *buf)
 	}
 	/* Continues in att_tx_destroy_work_handler() */
 }
-
+#ifdef _MSC_VER
+struct net_buf_pool att_pool[20];
+#else
 NET_BUF_POOL_DEFINE(att_pool, CONFIG_BT_ATT_TX_COUNT,
 		    BT_L2CAP_SDU_BUF_SIZE(BT_ATT_BUF_SIZE),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, att_tx_destroy);
-
+#endif
 static struct bt_att_tx_meta_data *att_get_tx_meta_data(const struct net_buf *buf)
 {
 	__ASSERT_NO_MSG(net_buf_pool_get(buf->pool_id) == &att_pool);
@@ -850,7 +859,7 @@ static void att_send_process(struct bt_att *att)
 {
 	struct bt_att_chan *chan, *tmp, *prev = NULL;
 	int err = 0;
-
+	chan = tmp = prev = NULL;
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&att->chans, chan, tmp, node) {
 		if (err == -ENOENT && prev &&
 		    (bt_att_is_enhanced(chan) == bt_att_is_enhanced(prev))) {
@@ -973,7 +982,7 @@ static void att_req_send_process(struct bt_att *att)
 {
 	struct bt_att_req *req = NULL;
 	struct bt_att_chan *chan, *tmp, *prev = NULL;
-
+        chan = tmp = NULL;
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&att->chans, chan, tmp, node) {
 		/* If there is an ongoing transaction, do not use the channel */
 		if (chan->req) {
@@ -1009,7 +1018,7 @@ static uint8_t att_handle_rsp(struct bt_att_chan *chan, void *pdu, uint16_t len,
 			      int err)
 {
 	bt_att_func_t func = NULL;
-	void *params;
+	void *params = NULL;
 
 	LOG_DBG("chan %p err %d len %u: %s", chan, err, len, bt_hex(pdu, len));
 
@@ -3079,7 +3088,7 @@ struct net_buf *bt_att_create_pdu(struct bt_conn *conn, uint8_t op, size_t len)
 {
 	struct bt_att *att;
 	struct bt_att_chan *chan, *tmp;
-
+	chan = tmp = att = NULL;
 	att = att_get(conn);
 	if (!att) {
 		return NULL;
@@ -3452,7 +3461,7 @@ static struct bt_att_chan *att_chan_new(struct bt_att *att, atomic_val_t flags)
 	};
 	struct bt_att_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, struct bt_att_chan, chan, node) {
 		if (chan->att == att) {
 			quota++;
 		}
@@ -3574,11 +3583,12 @@ static int bt_att_accept(struct bt_conn *conn, struct bt_l2cap_chan **ch)
  * placed as the last one to ensure that SMP channel is properly initialized before bt_att_connected
  * tries to send security request.
  */
+#ifndef _MSC_VER
 BT_L2CAP_FIXED_CHANNEL_DEFINE(z_att_fixed_chan) = {
 	.cid = BT_L2CAP_CID_ATT,
 	.accept = bt_att_accept,
 };
-
+#endif
 #if defined(CONFIG_BT_EATT)
 static k_timeout_t credit_based_connection_delay(struct bt_conn *conn)
 {
@@ -3920,7 +3930,7 @@ uint16_t bt_att_get_mtu(struct bt_conn *conn)
 	struct bt_att_chan *chan, *tmp;
 	struct bt_att *att;
 	uint16_t mtu = 0;
-
+	chan = tmp = NULL;
 	att = att_get(conn);
 	if (!att) {
 		return 0;
@@ -3939,7 +3949,7 @@ uint16_t bt_att_get_uatt_mtu(struct bt_conn *conn)
 {
 	struct bt_att_chan *chan, *tmp;
 	struct bt_att *att;
-
+	chan = tmp = att = NULL;
 	att = att_get(conn);
 	if (!att) {
 		return 0;
@@ -3961,7 +3971,7 @@ static void att_chan_mtu_updated(struct bt_att_chan *updated_chan)
 	struct bt_att *att = updated_chan->att;
 	struct bt_att_chan *chan, *tmp;
 	uint16_t max_tx = 0, max_rx = 0;
-
+	chan = tmp = NULL;
 	/* Get maximum MTU's of other channels */
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&att->chans, chan, tmp, node) {
 		if (chan == updated_chan) {
@@ -4089,7 +4099,7 @@ void bt_att_req_cancel(struct bt_conn *conn, struct bt_att_req *req)
 {
 	struct bt_att *att;
 	struct bt_att_chan *chan, *tmp;
-
+	chan = tmp = att = NULL;
 	LOG_DBG("req %p", req);
 
 	if (!conn || !req) {
@@ -4125,13 +4135,13 @@ struct bt_att_req *bt_att_find_req_by_user_data(struct bt_conn *conn, const void
 		return NULL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, struct bt_att_chan, chan, node) {
 		if (chan->req->user_data == user_data) {
 			return chan->req;
 		}
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&att->reqs, req, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&att->reqs, struct bt_att_req, req, node) {
 		if (req->user_data == user_data) {
 			return req;
 		}
@@ -4158,7 +4168,7 @@ void bt_att_clear_out_of_sync_sent(struct bt_conn *conn)
 		return;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&att->chans, struct bt_att_chan, chan, node) {
 		atomic_clear_bit(chan->flags, ATT_OUT_OF_SYNC_SENT);
 	}
 }

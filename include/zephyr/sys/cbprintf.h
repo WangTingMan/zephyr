@@ -141,9 +141,9 @@ extern "C" {
 	Z_POW2_CEIL(COND_CODE_1(CONFIG_CBPRINTF_PACKAGE_LONGDOUBLE, \
 		(sizeof(long double)), (MAX(sizeof(double), sizeof(long long)))))
 #endif
-
+#ifndef _MSC_VER
 BUILD_ASSERT(Z_IS_POW2(CBPRINTF_PACKAGE_ALIGNMENT));
-
+#endif
 
 /**@defgroup CBPRINTF_PACKAGE_FLAGS Package flags
  * @{

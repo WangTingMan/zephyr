@@ -44,6 +44,11 @@ struct _cpu_arch {
 	 * prevent this, we add a 1 byte dummy variable.
 	 */
 	uint8_t dummy;
+#else
+	/**
+	 * fucking gcc: this is not a standard usage.
+	 */
+	uint8_t dummy;
 #endif
 };
 

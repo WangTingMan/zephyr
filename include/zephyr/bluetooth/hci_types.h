@@ -49,6 +49,7 @@ extern "C" {
 #define BT_HCI_SYNC_HANDLE_INVALID      0xffff
 #define BT_HCI_PAWR_SUBEVENT_MAX        128
 
+#pragma pack(1)
 /* Bluetooth spec v5.4 Vol 4, Part E - 5.4.3 HCI Synchronous Data Packets */
 struct bt_hci_sco_hdr {
 	uint16_t handle; /* 12 bit handle, 2 bit Packet Status Flag, 1 bit RFU */
@@ -1975,13 +1976,13 @@ struct bt_hci_cp_le_set_pawr_subevent_data_element {
 	uint8_t response_slot_start;
 	uint8_t response_slot_count;
 	uint8_t subevent_data_length;
-	uint8_t subevent_data[0];
+	uint8_t subevent_data[1];
 } __packed;
 
 struct bt_hci_cp_le_set_pawr_subevent_data {
 	uint8_t adv_handle;
 	uint8_t num_subevents;
-	struct bt_hci_cp_le_set_pawr_subevent_data_element subevents[0];
+	struct bt_hci_cp_le_set_pawr_subevent_data_element subevents[1];
 } __packed;
 
 
@@ -3450,7 +3451,7 @@ struct bt_hci_evt_le_per_adv_response {
 	uint8_t response_slot;
 	uint8_t data_status;
 	uint8_t data_length;
-	uint8_t data[0];
+	uint8_t data[1];
 } __packed;
 
 struct bt_hci_evt_le_per_adv_response_report {
@@ -3458,7 +3459,7 @@ struct bt_hci_evt_le_per_adv_response_report {
 	uint8_t subevent;
 	uint8_t tx_status;
 	uint8_t num_responses;
-	struct bt_hci_evt_le_per_adv_response responses[0];
+	struct bt_hci_evt_le_per_adv_response responses[1];
 } __packed;
 
 #define BT_HCI_EVT_LE_ENH_CONN_COMPLETE_V2 0x29
@@ -3577,11 +3578,13 @@ struct bt_hci_evt_le_advertising_info {
 	uint8_t      evt_type;
 	bt_addr_le_t addr;
 	uint8_t      length;
-	uint8_t      data[0];
+#ifndef _MSC_VER
+	uint8_t      data[];
+#endif
 } __packed;
 struct bt_hci_evt_le_advertising_report {
 	uint8_t num_reports;
-	struct bt_hci_evt_le_advertising_info adv_info[0];
+	struct bt_hci_evt_le_advertising_info adv_info[];
 } __packed;
 
 /** All limits according to BT Core Spec v5.4 [Vol 4, Part E]. */
@@ -3721,14 +3724,14 @@ struct bt_hci_evt_le_ext_advertising_info {
 	uint16_t     interval;
 	bt_addr_le_t direct_addr;
 	uint8_t      length;
-	uint8_t      data[0];
+	uint8_t      data[1];
 } __packed;
 
 /** Maximum number of reports in an LE Extended Advertising Report. */
 #define BT_HCI_LE_EXT_ADV_REPORT_MAX_NUM_REPORTS 0x0a
 struct bt_hci_evt_le_ext_advertising_report {
 	uint8_t num_reports;
-	struct bt_hci_evt_le_ext_advertising_info adv_info[0];
+	struct bt_hci_evt_le_ext_advertising_info adv_info[1];
 } __packed;
 
 #define BT_HCI_EVT_LE_PER_ADV_SYNC_ESTABLISHED  0x0e
@@ -4526,7 +4529,7 @@ struct bt_hci_evt_le_conn_rate_change {
 	uint16_t continuation_number;
 	uint16_t supervision_timeout;
 } __packed;
-
+#pragma pack()
 /* Event mask bits */
 
 #define BT_EVT_BIT(n) (1ULL << (n))

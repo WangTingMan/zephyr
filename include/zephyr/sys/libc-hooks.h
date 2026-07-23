@@ -97,9 +97,9 @@ extern struct k_mem_partition z_malloc_partition;
 extern struct k_mem_partition z_libc_partition;
 #endif
 #endif /* CONFIG_USERSPACE */
-
+#ifndef _MSC_VER
 #include <zephyr/syscalls/libc-hooks.h>
-
+#endif
 /* C library memory partitions */
 #define Z_LIBC_DATA K_APP_DMEM(z_libc_partition)
 

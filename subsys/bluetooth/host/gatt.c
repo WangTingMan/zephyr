@@ -1085,8 +1085,49 @@ static void bt_gatt_pairing_complete(struct bt_conn *conn, bool bonded)
 }
 #endif /* CONFIG_BT_SETTINGS && CONFIG_BT_SMP */
 
-BT_GATT_SERVICE_DEFINE(_1_gatt_svc,
-	BT_GATT_PRIMARY_SERVICE(BT_UUID_GATT),
+#ifdef _MSC_VER
+#if defined(CONFIG_BT_EATT)
+#define CONFIG_BT_EAT_PART	BT_GATT_CHARACTERISTIC( BT_UUID_GATT_SERVER_FEATURES, \
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,				      \
+		sf_read, NULL, NULL ),
+#else
+#define CONFIG_BT_EAT_PART
+#endif /* CONFIG_BT_EATT */
+
+#if defined(CONFIG_BT_GATT_CACHING)
+#define CONFIG_BT_GATT_CACHING_PART BT_GATT_CHARACTERISTIC( BT_UUID_GATT_CLIENT_FEATURES, \
+		BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE,					  \
+		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,					  \
+		cf_read, cf_write, NULL ),						  \
+	BT_GATT_CHARACTERISTIC( BT_UUID_GATT_DB_HASH,					  \
+		BT_GATT_CHRC_READ, BT_GATT_PERM_READ,					  \
+		db_hash_read, NULL, NULL ),
+#else
+#define CONFIG_BT_GATT_CACHING_PART
+#endif /* CONFIG_BT_GATT_CACHING */
+
+#if defined(CONFIG_BT_GATT_SERVICE_CHANGED)
+/* Bluetooth 5.0, Vol3 Part G:
+ * The Service Changed characteristic Attribute Handle on the server
+ * shall not change if the server has a trusted relationship with any
+ * client.
+ */
+#define CONFIG_BT_GATT_SERVICE_CHANGED_PART BT_GATT_CHARACTERISTIC( BT_UUID_GATT_SC, BT_GATT_CHRC_INDICATE, \
+	BT_GATT_PERM_NONE, NULL, NULL, NULL ),								    \
+	BT_GATT_CCC_MANAGED( &sc_ccc, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE ),
+#else
+#define CONFIG_BT_GATT_SERVICE_CHANGED_PART
+#endif /* CONFIG_BT_GATT_SERVICE_CHANGED */
+
+#define TOTAL_GATT_SERVER_PART CONFIG_BT_GATT_SERVICE_CHANGED_PART CONFIG_BT_GATT_CACHING_PART CONFIG_BT_EAT_PART
+
+BT_GATT_SERVICE_DEFINE( _1_gatt_svc,
+	BT_GATT_PRIMARY_SERVICE( BT_UUID_GATT ),
+	TOTAL_GATT_SERVER_PART
+);
+#else
+BT_GATT_SERVICE_DEFINE( _1_gatt_svc,
+	BT_GATT_PRIMARY_SERVICE( BT_UUID_GATT ),
 #if defined(CONFIG_BT_GATT_SERVICE_CHANGED)
 	/* Bluetooth 5.0, Vol3 Part G:
 	 * The Service Changed characteristic Attribute Handle on the server
@@ -1112,7 +1153,7 @@ BT_GATT_SERVICE_DEFINE(_1_gatt_svc,
 #endif /* CONFIG_BT_GATT_CACHING */
 #endif /* CONFIG_BT_GATT_SERVICE_CHANGED */
 );
-
+#endif
 #if defined(CONFIG_BT_GATT_DYNAMIC_DB)
 static uint8_t found_attr(const struct bt_gatt_attr *attr, uint16_t handle,
 			  void *user_data)
@@ -3610,7 +3651,7 @@ static void call_notify_cb_and_maybe_unsubscribe(struct bt_conn *conn, struct ga
 {
 	struct bt_gatt_subscribe_params *params, *tmp;
 	int err;
-
+	params = tmp = NULL;
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&sub->list, params, tmp, node) {
 		if (handle != params->value_handle) {
 			continue;
@@ -3695,7 +3736,7 @@ static void remove_subscriptions(struct bt_conn *conn)
 	struct gatt_sub *sub;
 	struct bt_gatt_subscribe_params *params, *tmp;
 	sys_snode_t *prev = NULL;
-
+	params = tmp = NULL;
 	sub = gatt_sub_find(conn);
 	if (!sub) {
 		return;
@@ -5472,7 +5513,7 @@ int bt_gatt_subscribe(struct bt_conn *conn,
 #endif
 
 	/* Lookup existing subscriptions */
-	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, tmp, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, struct bt_gatt_subscribe_params, tmp, node) {
 		/* Fail if entry already exists */
 		if (tmp == params) {
 			gatt_sub_remove(conn, sub, NULL, NULL);
@@ -5527,7 +5568,7 @@ int bt_gatt_resubscribe(uint8_t id, const bt_addr_le_t *peer,
 	}
 
 	/* Lookup existing subscriptions */
-	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, tmp, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, struct bt_gatt_subscribe_params, tmp, node) {
 		/* Fail if entry already exists */
 		if (tmp == params) {
 			gatt_sub_remove(NULL, sub, NULL, NULL);
@@ -5559,7 +5600,7 @@ int bt_gatt_unsubscribe(struct bt_conn *conn,
 	}
 
 	/* Lookup existing subscriptions */
-	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, tmp, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&sub->list, struct bt_gatt_subscribe_params, tmp, node) {
 		if (params == tmp) {
 			found = true;
 			continue;
@@ -5972,7 +6013,7 @@ void bt_gatt_connected(struct bt_conn *conn)
 void bt_gatt_att_max_mtu_changed(struct bt_conn *conn, uint16_t tx, uint16_t rx)
 {
 	struct bt_gatt_cb *cb, *tmp;
-
+	cb = tmp = NULL;
 	SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&callback_list, cb, tmp, node) {
 		if (cb->att_mtu_updated) {
 			cb->att_mtu_updated(conn, tx, rx);
@@ -6442,7 +6483,7 @@ static void bt_gatt_clear_subscriptions(uint8_t id, const bt_addr_le_t *addr)
 	struct gatt_sub *sub;
 	struct bt_gatt_subscribe_params *params, *tmp;
 	sys_snode_t *prev = NULL;
-
+	params = tmp = NULL;
 	sub = find_gatt_sub(id, addr);
 	if (!sub) {
 		return;

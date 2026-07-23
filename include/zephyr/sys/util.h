@@ -29,6 +29,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
+#include <assert.h>
 
 /** @brief Number of bits that make up a type */
 #define NUM_BITS(t) (sizeof(t) * BITS_PER_BYTE)
@@ -115,8 +117,11 @@ extern "C" {
  *
  * In C, passing a pointer as @p array causes a compile error.
  */
+#ifdef _MSC_VER
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
+#else
 #define ARRAY_SIZE(array) ((size_t)(IS_ARRAY(array) + (sizeof(array) / sizeof((array)[0]))))
-
+#endif
 #endif /* __cplusplus */
 
 /**
@@ -138,9 +143,9 @@ extern "C" {
  */
 #define FLEXIBLE_ARRAY_DECLARE(type, name)                                                         \
 	struct {                                                                                   \
-		struct {                                                                           \
+		struct {char dummy;                                                                \
 		} __unused_##name;                                                                 \
-		type name[];                                                                       \
+		type name[1];                                                                      \
 	}
 
 /**
@@ -176,12 +181,27 @@ extern "C" {
  *
  * @return the array index of @p ptr within @p array, on success
  */
+#ifdef _MSC_VER
+inline size_t msvc_c_array_index_helper( const void* array, const void* ptr, size_t array_total_size, size_t elem_size )
+{
+	uintptr_t arr_start = ( uintptr_t )array;
+	uintptr_t arr_end = arr_start + array_total_size;
+	uintptr_t target = ( uintptr_t )ptr;
+
+	assert( target >= arr_start && target < arr_end );
+	assert( ( target - arr_start ) % elem_size == 0 );
+
+	return ( size_t )( ( target - arr_start ) / elem_size );
+}
+#define ARRAY_INDEX(array, ptr) \
+    msvc_c_array_index_helper((array), (ptr), sizeof(array), sizeof((array)[0]))
+#else
 #define ARRAY_INDEX(array, ptr)                                                                    \
 	({                                                                                         \
 		__ASSERT_NO_MSG(IS_ARRAY_ELEMENT(array, ptr));                                     \
 		(__typeof__((array)[0]) *)(ptr) - (array);                                         \
 	})
-
+#endif
 /**
  * @brief Check if a pointer @p ptr lies within @p array.
  *
@@ -233,8 +253,8 @@ extern "C" {
  * @param array the array in question
  * @param ptr pointer to an element of @p array
  */
-#define ARRAY_FOR_EACH_PTR(array, ptr)                                                             \
-	for (__typeof__(*(array)) *ptr = (array); (size_t)((ptr) - (array)) < ARRAY_SIZE(array);   \
+#define ARRAY_FOR_EACH_PTR(array, typeof_ptr, ptr)                                             \
+	for (typeof_ptr *ptr = (array); (size_t)((ptr) - (array)) < ARRAY_SIZE(array);   \
 	     ++(ptr))
 
 /**
@@ -278,12 +298,16 @@ extern "C" {
  * @param field the name of the field within the struct @p ptr points to
  * @return a pointer to the structure that contains @p ptr
  */
+#if defined(_MSC_VER)
+#define CONTAINER_OF(ptr, type, field) \
+        ((type *)((char *)(ptr) - offsetof(type, field)))
+#else
 #define CONTAINER_OF(ptr, type, field)                                                             \
 	({                                                                                         \
 		CONTAINER_OF_VALIDATE(ptr, type, field)                                            \
 		((type *)(((char *)(ptr)) - offsetof(type, field)));                               \
 	})
-
+#endif
 /**
  * @brief Report the size of a struct field in bytes.
  *
@@ -312,6 +336,20 @@ extern "C" {
  */
 #define IS_ALIGNED(ptr, align) (((uintptr_t)(ptr)) % (align) == 0)
 
+#ifdef _MSC_VER
+ /**
+  * @brief Value of @p x rounded up to the next multiple of @p align.
+  */
+#define ROUND_UP(x, align)                                                                         \
+	((((uintptr_t)(x) + ((uintptr_t)(align) - 1)) / (uintptr_t)(align)) *          \
+	 (uintptr_t)(align))
+
+  /**
+   * @brief Value of @p x rounded down to the previous multiple of @p align.
+   */
+#define ROUND_DOWN(x, align)                                                                       \
+	(((uintptr_t)(x) / (uintptr_t)(align)) * (uintptr_t)(align))
+#else
 /**
  * @brief Value of @p x rounded up to the next multiple of @p align.
  */
@@ -324,7 +362,7 @@ extern "C" {
  */
 #define ROUND_DOWN(x, align)                                                                       \
 	(((unsigned long)(x) / (unsigned long)(align)) * (unsigned long)(align))
-
+#endif
 /** @brief Value of @p x rounded up to the next word boundary. */
 #define WB_UP(x) ROUND_UP(x, sizeof(void *))
 
@@ -1001,7 +1039,11 @@ static ALWAYS_INLINE uint32_t sys_gcd_u(uint32_t a, uint32_t b)
 
 static ALWAYS_INLINE uint32_t sys_gcd_s(int32_t a, int32_t b)
 {
+#ifdef _MSC_VER
+	return sys_gcd_u( ( uint32_t )abs( a ), ( uint32_t )abs( b ) );
+#else
 	return sys_gcd_u(a < 0 ? -(uint32_t)a : (uint32_t)a, b < 0 ? -(uint32_t)b : (uint32_t)b);
+#endif
 }
 /**
  * @endcond
@@ -1032,7 +1074,11 @@ static ALWAYS_INLINE uint64_t sys_lcm_u(uint32_t a, uint32_t b)
 
 static ALWAYS_INLINE uint64_t sys_lcm_s(int32_t a, int32_t b)
 {
+#ifdef _MSC_VER
+	return sys_lcm_u( ( uint32_t )abs( a ), ( uint32_t )abs( b ) );
+#else
 	return sys_lcm_u(a < 0 ? -(uint32_t)a : (uint32_t)a, b < 0 ? -(uint32_t)b : (uint32_t)b);
+#endif
 }
 /**
  * @endcond

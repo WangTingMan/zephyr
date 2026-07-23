@@ -78,7 +78,15 @@ extern "C" {
  * Macro ensures that expressions are evaluated only once. See @ref max for
  * macro limitations.
  */
+#if defined(_MSC_VER)
+#define min(a, b) __extension__ ({  \
+    __typeof__(a) _a = (a);         \
+    __typeof__(b) _b = (b);         \
+    _a < _b ? _a : _b;              \
+})
+#else
 #define min(a, b) _minmax_cnt(Z_INTERNAL_MIN, a, b, __COUNTER__)
+#endif
 #endif
 
 /** @brief Return smaller value of three provided expressions.

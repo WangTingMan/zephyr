@@ -67,7 +67,9 @@ typedef void (*k_thread_entry_t)(void *p1, void *p2, void *p3);
  * with fewer bits of precision in the timer is expected to synthesize
  * a 32 bit count.
  */
+#ifndef _MSC_VER
 static inline uint32_t arch_k_cycle_get_32(void);
+#endif
 
 /**
  * As for arch_k_cycle_get_32(), but with a 64 bit return value.  Not
@@ -81,8 +83,7 @@ static inline uint32_t arch_k_cycle_get_32(void);
  * fewer bits of precision in the timer is generally not expected to
  * implement this API.
  */
-static inline uint64_t arch_k_cycle_get_64(void);
-
+uint64_t arch_k_cycle_get_64(void);
 /** @} */
 
 
@@ -331,6 +332,10 @@ bool arch_cpu_active(int cpu_num);
  *
  * @see irq_lock()
  */
+#ifdef _MSC_VER
+unsigned int arch_irq_lock( void );
+void arch_irq_unlock( unsigned int key );
+#else
 static inline unsigned int arch_irq_lock(void);
 
 /**
@@ -359,7 +364,7 @@ static inline bool arch_irq_unlocked(unsigned int key);
  * @return true if interrupts are currently enabled on the calling CPU.
  */
 static inline bool arch_cpu_irqs_are_enabled(void);
-
+#endif
 #ifdef CONFIG_ZERO_LATENCY_IRQS
 
 /**

@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include <global_configs.h>
 
 #include <zephyr/sys/uuid.h>
 
@@ -20,6 +21,10 @@
 
 #if defined(CONFIG_UUID_BASE64)
 #include <zephyr/sys/base64.h>
+#endif
+
+#if defined(_MSC_VER) && !defined(UNALIGNED_GET)
+#define UNALIGNED_GET(g) (*(g))
 #endif
 
 #define UUID_STR_POSITION_FIRST_HYPHEN  (8U)

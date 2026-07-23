@@ -316,7 +316,7 @@ struct bt_avrcp_subunit_info_rsp {
 	((bt_avrcp_opid_t)(FIELD_GET(GENMASK(6, 0), ((payload)->opid_state))))
 #define BT_AVRCP_PASSTHROUGH_SET_STATE_OPID(payload, state, opid)                                  \
 	(payload)->opid_state = FIELD_PREP(BIT(7), state) | FIELD_PREP(GENMASK(6, 0), opid)
-
+#pragma pack(1)
 struct bt_avrcp_passthrough_opvu_data {
 	uint8_t company_id[BT_AVRCP_COMPANY_ID_SIZE];
 	uint16_t opid_vu;
@@ -439,20 +439,20 @@ struct bt_avrcp_media_attr {
 	uint32_t attr_id;    /**< Media attribute ID, see @ref bt_avrcp_media_attr_id_t */
 	uint16_t charset_id; /**< Character set ID, see @ref bt_avrcp_charset_t */
 	uint16_t attr_len;   /**< Length of attribute value */
-	uint8_t attr_val[];  /**< Attribute value data */
+	uint8_t attr_val[1];  /**< Attribute value data */
 } __packed;
 
 /** @brief Media Element Item Name structure */
 struct media_element_item_name {
 	uint16_t charset_id;   /**< Character set ID for name, see @ref bt_avrcp_charset_t */
 	uint16_t name_len;     /**< Length of the name in bytes */
-	uint8_t  name[];       /**< Name string data */
+	uint8_t  name[1];       /**< Name string data */
 } __packed;
 
 /** @brief Media Element Item Attributes structure */
 struct media_element_item_attr {
 	uint8_t  num_attrs;           /**< Number of attributes */
-	struct bt_avrcp_media_attr attrs[]; /**< attribute tuples (id/charset/len/value) */
+	struct bt_avrcp_media_attr attrs[1]; /**< attribute tuples (id/charset/len/value) */
 } __packed;
 
 /** @brief Media Element item (item_type = 0x03).
@@ -465,7 +465,7 @@ struct bt_avrcp_media_element_item {
 	struct bt_avrcp_item_hdr hdr;
 	uint8_t  uid[8];       /**< 64-bit element UID. */
 	uint8_t  media_type;   /**< @ref bt_avrcp_media_type_t. */
-	uint8_t  data[];       /**< flexible array for name and attributes. */
+	uint8_t  data[1];       /**< flexible array for name and attributes. */
 } __packed;
 
 /** @brief GetFolderItems response
@@ -490,7 +490,7 @@ struct bt_avrcp_get_folder_items_rsp {
 	uint8_t  status;       /**< bt_avrcp_status_t */
 	uint16_t uid_counter;  /**< UID counter */
 	uint16_t num_items;    /**< Number of items in this response */
-	uint8_t  items[];      /**< Sequence of items, each begins with bt_avrcp_item_hdr */
+	uint8_t  items[1];      /**< Sequence of items, each begins with bt_avrcp_item_hdr */
 } __packed;
 
 /** @brief ChangePath command request */
@@ -512,7 +512,7 @@ struct bt_avrcp_get_item_attrs_cmd {
 	uint8_t uid[8];             /**< 64-bit UID of the item */
 	uint16_t uid_counter;       /**< UID counter */
 	uint8_t  num_attrs;         /**< 0x00 = all attributes, else count */
-	uint32_t attr_ids[];        /**< Attribute IDs @ref bt_avrcp_media_attr_id_t */
+	uint32_t attr_ids[1];        /**< Attribute IDs @ref bt_avrcp_media_attr_id_t */
 } __packed;
 
 /** @brief GetItemAttributes response */
@@ -543,7 +543,7 @@ struct bt_avrcp_get_total_number_of_items_rsp {
 struct bt_avrcp_search_cmd {
 	uint16_t charset_id;       /**< Character set ID for str, @ref bt_avrcp_charset_t */
 	uint16_t search_str_len;    /**< Length of search string */
-	uint8_t  search_str[];      /**< Search string bytes */
+	uint8_t  search_str[1];      /**< Search string bytes */
 } __packed;
 
 /** @brief Search response */
@@ -556,7 +556,7 @@ struct bt_avrcp_search_rsp {
 /** @brief get folder name (response) */
 struct bt_avrcp_folder_name {
 	uint16_t folder_name_len;
-	uint8_t folder_name[];
+	uint8_t folder_name[1];
 } __packed;
 
 /** @brief Set browsed player response structure */
@@ -566,7 +566,7 @@ struct bt_avrcp_set_browsed_player_rsp {
 	uint32_t num_items;                         /**< Number of items in the folder */
 	uint16_t charset_id;                        /**< Character set ID @ref bt_avrcp_charset_t */
 	uint8_t folder_depth;                       /**< Folder depth */
-	struct bt_avrcp_folder_name folder_names[0]; /**< Folder names data */
+	struct bt_avrcp_folder_name folder_names[1]; /**< Folder names data */
 } __packed;
 
 /** @brief AVRCP Playback Status */
@@ -602,13 +602,13 @@ typedef enum __packed {
 struct bt_avrcp_get_element_attrs_cmd {
 	uint8_t identifier[8]; /**< Element identifier (0x0 for currently playing) */
 	uint8_t num_attrs;     /**< Number of attributes requested (0 = all) */
-	uint32_t attr_ids[];   /**< Array of attribute IDs @ref bt_avrcp_media_attr_id_t */
+	uint32_t attr_ids[1];   /**< Array of attribute IDs @ref bt_avrcp_media_attr_id_t */
 } __packed;
 
 /** @brief GetElementAttributes response structure */
 struct bt_avrcp_get_element_attrs_rsp {
 	uint8_t num_attrs;			/**< Number of attributes in response */
-	struct bt_avrcp_media_attr attrs[];	/**< Array of media attributes */
+	struct bt_avrcp_media_attr attrs[1];	/**< Array of media attributes */
 } __packed;
 
 /** @brief AVRCP Player Application Setting Attribute IDs */
@@ -650,7 +650,7 @@ typedef enum __packed {
 /** @brief ListPlayerApplicationSettingAttributes response */
 struct bt_avrcp_list_player_app_setting_attrs_rsp {
 	uint8_t num_attrs;       /**< Number of application setting attributes */
-	uint8_t attr_ids[];      /**< Array of attribute IDs @ref bt_avrcp_player_attr_id_t */
+	uint8_t attr_ids[1];      /**< Array of attribute IDs @ref bt_avrcp_player_attr_id_t */
 } __packed;
 
 /** @brief ListPlayerApplicationSettingValues command request */
@@ -661,13 +661,13 @@ struct bt_avrcp_list_player_app_setting_vals_cmd {
 /** @brief ListPlayerApplicationSettingValues response */
 struct bt_avrcp_list_player_app_setting_vals_rsp {
 	uint8_t num_values;      /**< Number of values for the attribute */
-	uint8_t values[];        /**< Array of possible values */
+	uint8_t values[1];        /**< Array of possible values */
 } __packed;
 
 /** @brief GetCurrentPlayerApplicationSettingValue command request */
 struct bt_avrcp_get_curr_player_app_setting_val_cmd {
 	uint8_t num_attrs;       /**< Number of attributes to query */
-	uint8_t attr_ids[];      /**< Array of attribute IDs */
+	uint8_t attr_ids[1];      /**< Array of attribute IDs */
 } __packed;
 
 /** @brief AVRCP Attribute-Value Pair */
@@ -679,19 +679,19 @@ struct bt_avrcp_app_setting_attr_val {
 /** @brief GetCurrentPlayerApplicationSettingValue response */
 struct bt_avrcp_get_curr_player_app_setting_val_rsp {
 	uint8_t num_attrs;       /**< Number of attributes returned */
-	struct bt_avrcp_app_setting_attr_val attr_vals[]; /**< Array of attribute-value pairs */
+	struct bt_avrcp_app_setting_attr_val attr_vals[1]; /**< Array of attribute-value pairs */
 } __packed;
 
 /** @brief SetPlayerApplicationSettingValue command request */
 struct bt_avrcp_set_player_app_setting_val_cmd {
 	uint8_t num_attrs;       /**< Number of attributes to set */
-	struct bt_avrcp_app_setting_attr_val attr_vals[]; /**< Array of attribute-value pairs */
+	struct bt_avrcp_app_setting_attr_val attr_vals[1]; /**< Array of attribute-value pairs */
 } __packed;
 
 /** @brief GetPlayerApplicationSettingAttributeText command request */
 struct bt_avrcp_get_player_app_setting_attr_text_cmd {
 	uint8_t num_attrs;       /**< Number of attributes to get text for */
-	uint8_t attr_ids[];      /**< Array of attribute IDs */
+	uint8_t attr_ids[1];      /**< Array of attribute IDs */
 } __packed;
 
 /** @brief AVRCP Attribute Text Entry */
@@ -699,20 +699,20 @@ struct bt_avrcp_app_setting_attr_text {
 	uint8_t attr_id;       /**< Attribute ID */
 	uint16_t charset_id;   /**< Charset ID */
 	uint8_t text_len;      /**< Length of text */
-	uint8_t text[];        /**< Text string */
+	uint8_t text[1];        /**< Text string */
 } __packed;
 
 /** @brief GetPlayerApplicationSettingAttributeText response */
 struct bt_avrcp_get_player_app_setting_attr_text_rsp {
 	uint8_t num_attrs;       /**< Number of attributes returned */
-	struct bt_avrcp_app_setting_attr_text attr_text[];
+	struct bt_avrcp_app_setting_attr_text attr_text[1];
 } __packed;
 
 /** @brief GetPlayerApplicationSettingValueText command request */
 struct bt_avrcp_get_player_app_setting_val_text_cmd {
 	uint8_t attr_id;         /**< Attribute ID */
 	uint8_t num_values;      /**< Number of values to get text for */
-	uint8_t value_ids[];     /**< Array of value IDs */
+	uint8_t value_ids[1];     /**< Array of value IDs */
 } __packed;
 
 /** @brief AVRCP Attribute Text Entry */
@@ -720,19 +720,19 @@ struct bt_avrcp_app_setting_val_text {
 	uint8_t value_id;      /**< Value ID */
 	uint16_t charset_id;   /**< Charset ID */
 	uint8_t text_len;      /**< Length of text */
-	uint8_t text[];        /**< Text string */
+	uint8_t text[1];        /**< Text string */
 } __packed;
 
 /** @brief GetPlayerApplicationSettingValueText response */
 struct bt_avrcp_get_player_app_setting_val_text_rsp {
 	uint8_t num_values;      /**< Number of values returned */
-	struct bt_avrcp_app_setting_val_text value_text[];
+	struct bt_avrcp_app_setting_val_text value_text[1];
 } __packed;
 
 /** @brief InformDisplayableCharacterSet command request */
 struct bt_avrcp_inform_displayable_char_set_cmd {
 	uint8_t num_charsets;    /**< Number of character sets supported */
-	uint16_t charset_ids[];  /**< Array of character set IDs */
+	uint16_t charset_ids[1];  /**< Array of character set IDs */
 } __packed;
 
 /** @brief InformBatteryStatusOfCT command request */
@@ -781,7 +781,7 @@ struct bt_avrcp_add_to_now_playing_cmd {
 	uint8_t uid[8];          /**< UID of the item */
 	uint16_t uid_counter;    /**< UID counter */
 } __packed;
-
+#pragma pack()
 struct bt_avrcp_event_data {
 	union {
 		/* EVENT_PLAYBACK_STATUS_CHANGED */

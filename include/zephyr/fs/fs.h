@@ -13,6 +13,10 @@
 #include <zephyr/sys/dlist.h>
 #include <zephyr/fs/fs_interface.h>
 
+#ifndef ssize_t
+#define ssize_t int
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

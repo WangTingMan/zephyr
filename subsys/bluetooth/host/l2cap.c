@@ -84,7 +84,6 @@ NET_BUF_POOL_FIXED_DEFINE(disc_pool, 1,
 				sizeof(struct bt_l2cap_sig_hdr) +
 				sizeof(struct bt_l2cap_disconn_req)),
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-
 #define ANY_OPCODE 0x100
 #define l2cap_lookup_ident(conn, ident, req_opcode)                                                \
 	__l2cap_lookup_ident(conn, ident, req_opcode, false)
@@ -152,7 +151,7 @@ __l2cap_lookup_ident(struct bt_conn *conn, uint16_t ident, uint16_t req_opcode, 
 	struct bt_l2cap_chan *chan;
 	sys_snode_t *prev = NULL;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if ((BT_L2CAP_LE_CHAN(chan)->ident == ident) &&
 		    ((BT_L2CAP_LE_CHAN(chan)->pending_req == req_opcode) ||
 		     (req_opcode == ANY_OPCODE))) {
@@ -175,7 +174,7 @@ void bt_l2cap_chan_remove(struct bt_conn *conn, struct bt_l2cap_chan *ch)
 	struct bt_l2cap_chan *chan;
 	sys_snode_t *prev = NULL;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (chan == ch) {
 			sys_slist_remove(&conn->channels, prev, &chan->node);
 			return;
@@ -462,7 +461,7 @@ void bt_l2cap_connected(struct bt_conn *conn)
 void bt_l2cap_disconnected(struct bt_conn *conn)
 {
 	struct bt_l2cap_chan *chan, *next;
-
+	chan = next = NULL;
 	if (bt_conn_is_br(conn)) {
 		bt_l2cap_br_disconnected(conn);
 		return;
@@ -684,7 +683,7 @@ fail:
 void bt_l2cap_security_changed(struct bt_conn *conn, uint8_t hci_status)
 {
 	struct bt_l2cap_chan *chan, *next;
-
+	chan = next = NULL;
 	if (bt_conn_is_br(conn)) {
 		l2cap_br_encrypt_change(conn, hci_status);
 		return;
@@ -865,7 +864,7 @@ static struct bt_l2cap_le_chan *get_ready_chan(struct bt_conn *conn)
 		return NULL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->l2cap_data_ready, lechan, _pdu_ready) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->l2cap_data_ready, struct bt_l2cap_le_chan, lechan, _pdu_ready) {
 		if (chan_has_data(lechan)) {
 			LOG_DBG("sending from chan %p (%s) data %d", lechan,
 				L2CAP_LE_CID_IS_DYN(lechan->tx.cid) ? "dynamic" : "static",
@@ -1181,7 +1180,7 @@ struct bt_l2cap_chan *bt_l2cap_le_lookup_tx_cid(struct bt_conn *conn,
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BT_L2CAP_LE_CHAN(chan)->tx.cid == cid) {
 			return chan;
 		}
@@ -1195,7 +1194,7 @@ struct bt_l2cap_chan *bt_l2cap_le_lookup_rx_cid(struct bt_conn *conn,
 {
 	struct bt_l2cap_chan *chan;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BT_L2CAP_LE_CHAN(chan)->rx.cid == cid) {
 			return chan;
 		}
@@ -1209,7 +1208,7 @@ struct bt_l2cap_server *bt_l2cap_server_lookup_psm(uint16_t psm)
 {
 	struct bt_l2cap_server *server;
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&servers, server, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&servers, struct bt_l2cap_server, server, node) {
 		if (server->psm == psm) {
 			return server;
 		}
@@ -1883,7 +1882,7 @@ static struct bt_l2cap_le_chan *l2cap_remove_rx_cid(struct bt_conn *conn,
 		return NULL;
 	}
 
-	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, chan, node) {
+	SYS_SLIST_FOR_EACH_CONTAINER(&conn->channels, struct bt_l2cap_chan, chan, node) {
 		if (BT_L2CAP_LE_CHAN(chan)->rx.cid == cid) {
 			sys_slist_remove(&conn->channels, prev, &chan->node);
 			return BT_L2CAP_LE_CHAN(chan);
