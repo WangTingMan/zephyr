@@ -1,0 +1,149 @@
+#include "BluetoothBaseImplementation.h"
+#include "BluetoothAvrcpTargetInterfaceImpl.h"
+
+#include "zephyr_bluetooth_base.h"
+#include <base/logging.h>
+
+#include <Zhen/ExecutbleEvent.h>
+#include <Zhen/PageManager.h>
+#include <Zhen/logging.h>
+
+#include <BT/Adaptor.h>
+#include <Utils.h>
+
+extern "C"
+{
+
+void _adapter_state_ready_callback()
+{
+    std::shared_ptr<ExecutbleEvent> event = std::make_shared<ExecutbleEvent>();
+    event->SetExecutableFunction( std::bind( &Adaptor::AdapterStateChanged, std::ref( Adaptor::GetInstance() ), true ) );
+    PageManager::GetInstance().PostEvent( event );
+}
+
+void _new_device_found
+    (
+    char const* a_name,
+    char const* a_addr
+    )
+{
+    BluetoothAddress address;
+    memcpy(address.address, a_addr, 6);
+    RemoteDevice remote_dev;
+    remote_dev.address = address;
+    std::string name;
+    name.assign( a_name );
+    remote_dev.name = UTF8_To_string( name );
+
+    auto fun = std::bind( &Adaptor::OnDeviceFound, std::ref( Adaptor::GetInstance() ), remote_dev );
+    std::shared_ptr< ExecutbleEvent > event = std::make_shared<ExecutbleEvent>( fun );
+    PageManager::GetInstance().PostEvent( event );
+}
+
+void _inquiry_work_finished()
+{
+    std::shared_ptr<ExecutbleEvent> event = std::make_shared<ExecutbleEvent>
+        (
+            std::bind( &Adaptor::OnDiscoveryStateChanged, std::ref( Adaptor::GetInstance() ), DiscoveryState::BT_DISCOVERY_STOPPED )
+        );
+    PageManager::GetInstance().PostEvent( event );
+}
+
+void _inquiry_work_started()
+{
+    std::shared_ptr<ExecutbleEvent> event = std::make_shared<ExecutbleEvent>
+        (
+            std::bind( &Adaptor::OnDiscoveryStateChanged, std::ref( Adaptor::GetInstance() ), DiscoveryState::BT_DISCOVERY_STARTED )
+        );
+    PageManager::GetInstance().PostEvent( event );
+}
+
+}
+
+BluetoothBaseImplementation& BluetoothBaseImplementation::GetInstance()
+{
+    static BluetoothBaseImplementation instance;
+    return instance;
+}
+
+BluetoothBaseInterface& BluetoothBaseInterface::GetInterface()
+{
+    return BluetoothBaseImplementation::GetInstance();
+}
+
+BluetoothBaseImplementation::BluetoothBaseImplementation()
+{
+}
+
+void BluetoothBaseImplementation::InitPlatform()
+{
+}
+
+void BluetoothBaseImplementation::Init()
+{
+    if( !m_env_initialzied )
+    {
+        zephyr_init_();
+    }
+}
+
+void BluetoothBaseImplementation::Enable( bool a_enable )
+{
+    Init();
+}
+
+void BluetoothBaseImplementation::StartSearch( bool a_search )
+{
+    start_discovery();
+}
+
+void BluetoothBaseImplementation::PairWithDevice( BluetoothAddress a_address )
+{
+}
+
+void BluetoothBaseImplementation::DeletePairedDevice( BluetoothAddress a_address )
+{
+}
+
+void BluetoothBaseImplementation::SetLocalName( std::string const& a_name )
+{
+}
+
+bool BluetoothBaseImplementation::SetLocalDeviceSettings( bool a_pairable, bool a_discoverable, bool a_connectable )
+{
+    zephyr_bt_manager_br_set_visual( true, a_discoverable ? 1 : 0, a_connectable ? 1 : 0 );
+    return true;
+}
+
+bool BluetoothBaseImplementation::SspPairingReply( BluetoothAddress a_address, bool a_accept, SppPairingMethod a_pairingMethod, uint32_t a_passkey )
+{
+    return false;
+}
+
+bool BluetoothBaseImplementation::PincodeReply( BluetoothAddress a_address, bool a_accept, std::vector<uint8_t> a_pin )
+{
+    return false;
+}
+
+void* BluetoothBaseImplementation::GetFakeAudioInterfaceFromModule()
+{
+    return nullptr;
+}
+
+void BluetoothBaseImplementation::test()
+{
+}
+
+void BluetoothBaseImplementation::OnPairedDeviceAddressReceived( std::vector<BluetoothAddress> a_addresses )
+{
+}
+
+void BluetoothBaseImplementation::LoadAllPairedDevices()
+{
+}
+
+bool BluetoothBaseImplementation::LoadBluetoothLibrary()
+{
+    return false;
+}
+

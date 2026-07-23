@@ -512,6 +512,7 @@ void bt_hci_inquiry_result_with_rssi(struct net_buf *buf)
 		struct bt_br_discovery_result *result;
 		struct bt_br_discovery_priv *priv;
 		struct bt_br_discovery_cb *listener, *next;
+        listener = next = NULL;
 
 		if (buf->len < sizeof(*evt)) {
 			LOG_ERR("Unexpected end to buffer");
@@ -550,6 +551,7 @@ void bt_hci_extended_inquiry_result(struct net_buf *buf)
 	struct bt_br_discovery_result *result;
 	struct bt_br_discovery_priv *priv;
 	struct bt_br_discovery_cb *listener, *next;
+    listener = next = NULL;
 
 	if (!atomic_test_bit(bt_dev.flags, BT_DEV_INQUIRY)) {
 		return;
@@ -585,6 +587,7 @@ void bt_hci_remote_name_request_complete(struct net_buf *buf)
 	int eir_len = 240;
 	uint8_t *eir;
 	struct bt_br_discovery_cb *listener, *next;
+    listener = next = NULL;
 
 	result = get_result_slot(&evt->bdaddr, RSSI_INVALID);
 	if (!result) {

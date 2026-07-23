@@ -5,6 +5,7 @@
 #include <zephyr/win/queue_support_impl.h>
 #include <windows.h>
 #include <zephyr/sys/dlist.h>
+#include <zephyr/logging/log.h>
 
 #include "vadefs.h"
 #include "stdarg.h"
@@ -558,10 +559,13 @@ k_tid_t k_thread_create
 void k_kernel_init()
 {
     // 1. create system work queue.
-    uint64_t detail_id = 0x00;
-    struct k_thread* kt = create_k_thread( "sysworkq", &detail_id);
-    kt->thread_id = detail_id;
-    k_sys_work_q.thread_id = kt;
+    if( k_sys_work_q.thread_id == NULL )
+    {
+        uint64_t detail_id = 0x00;
+        struct k_thread* kt = create_k_thread( "sysworkq", &detail_id );
+        kt->thread_id = detail_id;
+        k_sys_work_q.thread_id = kt;
+    }
 
     // 2.
 }
@@ -827,4 +831,21 @@ int k_mbox_get( struct k_mbox* mbox, struct k_mbox_msg* rx_msg,
 {
     // TODO
     return 0;
+}
+
+k_timepoint_t sys_timepoint_calc( k_timeout_t timeout )
+{
+    k_timepoint_t ret;
+    uint64_t now_ = get_system_up_time();
+    now_ += timeout.ticks;
+    ret.tick = now_;
+    return ret;
+}
+
+k_timeout_t sys_timepoint_timeout( k_timepoint_t timepoint )
+{
+    k_timeout_t time;
+    uint64_t now_ = get_system_up_time();
+    time.ticks = timepoint.tick - now_;
+    return time;
 }
