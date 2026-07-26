@@ -182,10 +182,6 @@ int eth_stm32_tx(const struct device *dev, struct net_pkt *pkt)
 		.CRCPadCtrl = ETH_CRC_PAD_INSERT,
 	};
 
-#if defined(CONFIG_PTP_CLOCK_STM32_HAL)
-	bool timestamped_frame;
-#endif /* CONFIG_PTP_CLOCK_STM32_HAL */
-
 	__ASSERT_NO_MSG(pkt != NULL);
 	__ASSERT_NO_MSG(pkt->frags != NULL);
 
@@ -206,9 +202,7 @@ int eth_stm32_tx(const struct device *dev, struct net_pkt *pkt)
 	buf_header = &dev_data->tx_buffer_header[ctx->first_tx_buffer_index];
 
 #if defined(CONFIG_PTP_CLOCK_STM32_HAL)
-	timestamped_frame = eth_stm32_is_ptp_pkt(net_pkt_iface(pkt), pkt) ||
-		net_pkt_is_tx_timestamping(pkt);
-	if (timestamped_frame) {
+	if (net_pkt_is_tx_timestamping(pkt)) {
 		/* Enable transmit timestamp */
 		if (HAL_ETH_PTP_InsertTxTimestamp(heth) != HAL_OK) {
 			res = -EIO;
@@ -295,9 +289,6 @@ int eth_stm32_tx(const struct device *dev, struct net_pkt *pkt)
 			ETH_CHECKSUM_IPHDR_PAYLOAD_INSERT_PHDR_CALC : ETH_CHECKSUM_DISABLE,
 		.CRCPadCtrl = ETH_CRC_PAD_INSERT,
 	};
-#if defined(CONFIG_PTP_CLOCK_STM32_HAL)
-	bool timestamped_frame;
-#endif /* CONFIG_PTP_CLOCK_STM32_HAL */
 
 	__ASSERT_NO_MSG(pkt != NULL);
 	__ASSERT_NO_MSG(pkt->frags != NULL);
@@ -312,9 +303,7 @@ int eth_stm32_tx(const struct device *dev, struct net_pkt *pkt)
 	buf_header = &dev_data->tx_buffer_header[ctx->first_tx_buffer_index];
 
 #if defined(CONFIG_PTP_CLOCK_STM32_HAL)
-	timestamped_frame = eth_stm32_is_ptp_pkt(net_pkt_iface(pkt), pkt) ||
-			    net_pkt_is_tx_timestamping(pkt);
-	if (timestamped_frame) {
+	if (net_pkt_is_tx_timestamping(pkt)) {
 		/* Enable transmit timestamp */
 		if (HAL_ETH_PTP_InsertTxTimestamp(heth) != HAL_OK) {
 			return -EIO;
@@ -548,12 +537,10 @@ static void eth_stm32_update_dma_error(struct eth_stm32_hal_dev_data *dev_data, 
 		eth_stats_update_errors_tx(dev_data->iface);
 	}
 #else
-	if ((dma_error & ETH_DMASR_RWTS) || (dma_error & ETH_DMASR_RPSS) ||
-	    (dma_error & ETH_DMASR_RBUS)) {
+	if (dma_error & (ETH_DMASR_RWTS | ETH_DMASR_RPSS | ETH_DMASR_RBUS)) {
 		eth_stats_update_errors_rx(dev_data->iface);
 	}
-	if ((dma_error & ETH_DMASR_ETS) || (dma_error & ETH_DMASR_TPSS) ||
-	    (dma_error & ETH_DMASR_TJTS)) {
+	if (dma_error & (ETH_DMASR_ETS | ETH_DMASR_TPSS | ETH_DMASR_TJTS)) {
 		eth_stats_update_errors_tx(dev_data->iface);
 	}
 #endif /* DT_HAS_COMPAT_STATUS_OKAY(st_stm32h7_ethernet) */
