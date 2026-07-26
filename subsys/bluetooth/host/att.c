@@ -358,13 +358,11 @@ static void att_tx_destroy(struct net_buf *buf)
 	}
 	/* Continues in att_tx_destroy_work_handler() */
 }
-#ifdef _MSC_VER
-struct net_buf_pool att_pool[20];
-#else
+
 NET_BUF_POOL_DEFINE(att_pool, CONFIG_BT_ATT_TX_COUNT,
 		    BT_L2CAP_SDU_BUF_SIZE(BT_ATT_BUF_SIZE),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, att_tx_destroy);
-#endif
+
 static struct bt_att_tx_meta_data *att_get_tx_meta_data(const struct net_buf *buf)
 {
 	__ASSERT_NO_MSG(net_buf_pool_get(buf->pool_id) == &att_pool);
@@ -3788,7 +3786,9 @@ static void eatt_auto_connect(struct bt_conn *conn, bt_security_t level,
 BT_CONN_CB_DEFINE(conn_callbacks) = {
 	.security_changed = eatt_auto_connect,
 };
-
+#ifdef _MSC_VER
+BT_CONN_CB_REGISTER( conn_callbacks );
+#endif
 #endif /* CONFIG_BT_EATT_AUTO_CONNECT */
 
 int bt_eatt_disconnect(struct bt_conn *conn)

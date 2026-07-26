@@ -111,13 +111,9 @@ static void deferred_work(struct k_work *work);
 static void notify_connected(struct bt_conn *conn);
 
 static struct bt_conn acl_conns[CONFIG_BT_MAX_CONN];
-#ifdef _MSC_VER
-struct net_buf_pool acl_tx_pool[50];
-#else
 NET_BUF_POOL_DEFINE(acl_tx_pool, CONFIG_BT_L2CAP_TX_BUF_COUNT,
 		    BT_L2CAP_BUF_SIZE(CONFIG_BT_L2CAP_TX_MTU),
 		    CONFIG_BT_CONN_TX_USER_DATA_SIZE, NULL);
-#endif
 #if defined(CONFIG_BT_SMP) || defined(CONFIG_BT_CLASSIC)
 const struct bt_conn_auth_cb *bt_auth;
 sys_slist_t bt_auth_info_cbs = SYS_SLIST_STATIC_INIT(&bt_auth_info_cbs);
@@ -127,9 +123,9 @@ sys_slist_t bt_auth_info_cbs = SYS_SLIST_STATIC_INIT(&bt_auth_info_cbs);
 static sys_slist_t conn_cbs = SYS_SLIST_STATIC_INIT(&conn_cbs);
 
 #define BT_CONN_CB_DYNAMIC_FOREACH(_cn) \
-	for (struct bt_conn_cb *_cn = SYS_SLIST_PEEK_HEAD_CONTAINER(&conn_cbs, _cn, _node); \
+	for (struct bt_conn_cb *_cn = SYS_SLIST_PEEK_HEAD_CONTAINER(&conn_cbs, struct bt_conn_cb, _cn, _node); \
 	     _cn != NULL; \
-	     _cn = SYS_SLIST_PEEK_NEXT_CONTAINER(_cn, _node))
+	     _cn = SYS_SLIST_PEEK_NEXT_CONTAINER(_cn, struct bt_conn_cb, _node))
 #else
 #define BT_CONN_CB_DYNAMIC_FOREACH(_cn) \
 	for (struct bt_conn_cb *_cn = NULL; false; )
@@ -147,7 +143,7 @@ static void frag_destroy(struct net_buf *buf);
 
 /* Storage for fragments (views) into the upper layers' PDUs. */
 /* TODO: remove user-data requirements */
-NET_BUF_POOL_FIXED_DEFINE(fragments, CONFIG_BT_CONN_FRAG_COUNT, 0,
+NET_BUF_POOL_FIXED_DEFINE(fragments, CONFIG_BT_CONN_FRAG_COUNT, 5,
 			  CONFIG_BT_CONN_TX_USER_DATA_SIZE, frag_destroy);
 
 struct frag_md {

@@ -4813,6 +4813,8 @@ enum {
 struct k_work {
 #ifdef _MSC_VER
     uint16_t underlying_mutex_id;
+    /*once this work done then the signal will trigger*/
+    uint64_t associstate_signal_id;
 #endif
 /**
  * @cond INTERNAL_HIDDEN

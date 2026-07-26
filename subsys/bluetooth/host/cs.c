@@ -53,6 +53,9 @@ struct bt_conn_le_cs_subevent_result reassembled_result;
 BT_CONN_CB_DEFINE(cs_conn_callbacks) = {
 	.disconnected = clear_on_disconnect,
 };
+#ifdef _MSC_VER
+BT_CONN_CB_REGISTER( cs_conn_callbacks );
+#endif
 
 /** @brief Allocates new reassembly buffer identified by the connection handle
  *

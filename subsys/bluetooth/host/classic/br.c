@@ -417,6 +417,8 @@ static void report_discovery_results(void)
 	int i;
 	struct bt_br_discovery_cb *listener, *next;
 
+    listener = next = NULL;
+
 	for (i = 0; i < discovery_results_count; i++) {
 		struct bt_br_discovery_priv *priv;
 

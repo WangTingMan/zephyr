@@ -854,11 +854,23 @@ ssize_t bt_gatt_attr_read_service(struct bt_conn *conn,
  *
  *  @param _name Service name.
  */
+#ifdef _MSC_VER
+#define BT_GATT_SERVICE_DEFINE(_name, ...)                                                      \
+	const struct bt_gatt_attr attr_##_name[] = { __VA_ARGS__ };                                 \
+	const STRUCT_SECTION_ITERABLE(bt_gatt_service_static, _name) =                              \
+					BT_GATT_SERVICE(attr_##_name);                                              \
+    void register_bt_gatt_service_static_instance( struct bt_conn_cb* );                        \
+    static void _CONCAT( _CONCAT( bt_gatt_service_static, _name ), __LINE__ )()                 \
+    {                                                                                           \
+        register_bt_gatt_service_static_instance( &_name );                                     \
+    }                                                                                           \
+    REGISTER_PRE_MAIN( _CONCAT( _CONCAT( bt_gatt_service_static, _name ), __LINE__ ) )
+#else
 #define BT_GATT_SERVICE_DEFINE(_name, ...)				\
 	const struct bt_gatt_attr attr_##_name[] = { __VA_ARGS__ };	\
 	const STRUCT_SECTION_ITERABLE(bt_gatt_service_static, _name) =	\
 					BT_GATT_SERVICE(attr_##_name)
-
+#endif
 #define _BT_GATT_ATTRS_ARRAY_DEFINE(n, _instances, _attrs_def)	\
 	static struct bt_gatt_attr attrs_##n[] = _attrs_def(_instances[n])
 

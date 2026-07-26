@@ -13,12 +13,25 @@ struct bt_l2cap_br_fixed_chan {
 	int (*accept)(struct bt_conn *conn, struct bt_l2cap_chan **chan);
 };
 
+#ifdef _MSC_VER
+#define BT_L2CAP_BR_CHANNEL_DEFINE(_name, _cid, _accept)		                    \
+	const STRUCT_SECTION_ITERABLE(bt_l2cap_br_fixed_chan, _name) = {                \
+				.cid = _cid,                                                        \
+				.accept = _accept,                                                  \
+			};                                                                      \
+    void register_bt_l2cap_br_fix_chan_instance(struct bt_l2cap_br_fixed_chan*);    \
+    static void _CONCAT(_name, __LINE__)()                                          \
+    {                                                                               \
+        register_bt_l2cap_br_fix_chan_instance( &_name );                           \
+    }                                                                               \
+    REGISTER_PRE_MAIN( _CONCAT( _name, __LINE__ ) )
+#else
 #define BT_L2CAP_BR_CHANNEL_DEFINE(_name, _cid, _accept)		\
 	const STRUCT_SECTION_ITERABLE(bt_l2cap_br_fixed_chan, _name) = { \
 				.cid = _cid,			\
 				.accept = _accept,		\
 			}
-
+#endif
 /* Initialize BR/EDR L2CAP signal layer */
 void bt_l2cap_br_init(void);
 

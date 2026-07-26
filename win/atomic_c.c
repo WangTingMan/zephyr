@@ -34,7 +34,7 @@ atomic_ptr_val_t atomic_ptr_clear( atomic_ptr_t* target )
 
 atomic_val_t atomic_clear( atomic_t* target )
 {
-    return atomic_ptr_set( target, 0 );
+    return atomic_set( target, 0 );
 }
 
 bool atomic_cas( atomic_t* target, atomic_val_t old_value, atomic_val_t new_value )

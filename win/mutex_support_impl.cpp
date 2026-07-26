@@ -87,6 +87,73 @@ bool condition_variable_manager::release_condition_var( uint16_t a_id )
     return true;
 }
 
+void counting_semaphore_any::acquire()
+{
+    std::unique_lock locker(m_mutex);
+    if( m_count > 0 )
+    {
+        m_count--;
+        return;
+    }
+
+    do
+    {
+        m_contion.wait( locker, [ this ]()
+            {
+                return m_count > 0;
+            } );
+
+        if( m_count > 0 )
+        {
+            m_count--;
+            return;
+        }
+    } while (true);
+
+    return;
+}
+
+void counting_semaphore_any::release()
+{
+    std::unique_lock locker( m_mutex );
+    m_count++;
+    m_contion.notify_all();
+}
+
+bool counting_semaphore_any::try_acquire()
+{
+    std::unique_lock locker( m_mutex );
+    if( m_count > 0 )
+    {
+        m_count--;
+        return true;
+    }
+    return false;
+}
+
+bool counting_semaphore_any::try_acquire_for( std::chrono::microseconds a_duration )
+{
+    std::unique_lock locker( m_mutex );
+    if( m_count > 0 )
+    {
+        m_count--;
+        return true;
+    }
+
+    m_contion.wait_for( locker, a_duration, [ this ]()
+        {
+            return m_count > 0;
+        });
+
+    if( m_count > 0 )
+    {
+        m_count--;
+        return true;
+    }
+
+    return false;
+}
+
 semaphore_manager& semaphore_manager::get_instance()
 {
     static semaphore_manager instance;
@@ -285,8 +352,7 @@ int semaphone_clear_count(uint16_t a_id)
     auto seama = semaphore_manager::get_instance().get_semaphore( a_id );
     if( seama )
     {
-        // TODO, STD does not support clear the count.. we need use conditon to impl it.
-        seama->release(0xffff);
+        seama->release_all();
         return 0;
     }
     return -90;
@@ -297,9 +363,7 @@ int semaphone_get_count( uint16_t a_id )
     auto seama = semaphore_manager::get_instance().get_semaphore( a_id );
     if( seama )
     {
-        // TODO, STD does not support clear the count.. we need use conditon to impl it.
-        seama->release();
-        return 0;
+        return seama->get_count();
     }
     return 0;
 }

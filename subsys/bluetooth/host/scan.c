@@ -1512,7 +1512,9 @@ static void past_disconnected_cb(struct bt_conn *conn, uint8_t reason)
 BT_CONN_CB_DEFINE(past_conn_callbacks) = {
 	.disconnected = past_disconnected_cb,
 };
-
+#ifdef _MSC_VER
+BT_CONN_CB_REGISTER( past_conn_callbacks );
+#endif
 static void bt_hci_le_past_received_common(struct net_buf *buf)
 {
 #if defined(CONFIG_BT_PER_ADV_SYNC_RSP)

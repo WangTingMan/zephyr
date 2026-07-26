@@ -54,6 +54,9 @@
     <ClInclude Include="zephyr_bluetooth_base.h">
       <Filter>header</Filter>
     </ClInclude>
+    <ClInclude Include="pairing_manager.h">
+      <Filter>header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BluetoothA2DPImplementation.cpp">
@@ -93,6 +96,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="zephyr_bluetooth_base.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="pairing_manager.c">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

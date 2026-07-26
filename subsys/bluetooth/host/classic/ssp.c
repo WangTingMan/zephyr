@@ -238,6 +238,7 @@ static void ssp_pairing_complete(struct bt_conn *conn, uint8_t status)
 		}
 	} else {
 		struct bt_conn_auth_info_cb *listener, *next;
+        listener = next = NULL;
 
 		SYS_SLIST_FOR_EACH_CONTAINER_SAFE(&bt_auth_info_cbs, listener,
 						  next, node) {

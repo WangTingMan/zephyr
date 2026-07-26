@@ -129,8 +129,8 @@ typedef struct _slist sys_slist_t;
  * @param __cn Container struct type pointer
  * @param __n The field name of sys_node_t within the container struct
  */
-#define SYS_SLIST_PEEK_HEAD_CONTAINER(__sl, __cn, __n) \
-	Z_GENLIST_PEEK_HEAD_CONTAINER(slist, __sl, __cn, __n)
+#define SYS_SLIST_PEEK_HEAD_CONTAINER(__sl, type, __cn, __n) \
+	Z_GENLIST_PEEK_HEAD_CONTAINER(slist, __sl, type, __cn, __n)
 
 /**
  * @brief Provide the primitive to peek container of the list tail
@@ -148,8 +148,8 @@ typedef struct _slist sys_slist_t;
  * @param __cn Container struct type pointer
  * @param __n The field name of sys_node_t within the container struct
  */
-#define SYS_SLIST_PEEK_NEXT_CONTAINER(__cn, __n) \
-	Z_GENLIST_PEEK_NEXT_CONTAINER(slist, __cn, __n)
+#define SYS_SLIST_PEEK_NEXT_CONTAINER(__cn, type, __n) \
+	Z_GENLIST_PEEK_NEXT_CONTAINER(slist, type, __cn, __n)
 
 /**
  * @brief Provide the primitive to iterate on a list under a container

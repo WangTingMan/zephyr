@@ -31,6 +31,7 @@
     <ClInclude Include="BluetoothHidHostImplementation.h" />
     <ClInclude Include="BluetoothPANImplementation.h" />
     <ClInclude Include="BluetoothRfcommImplementation.h" />
+    <ClInclude Include="pairing_manager.h" />
     <ClInclude Include="zephyr_bluetooth_base.h" />
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +47,7 @@
     <ClCompile Include="BluetoothHidHostImplementation.cpp" />
     <ClCompile Include="BluetoothPANImplementation.cpp" />
     <ClCompile Include="BluetoothRfcommImplementation.cpp" />
+    <ClCompile Include="pairing_manager.c" />
     <ClCompile Include="zephyr_bluetooth_base.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

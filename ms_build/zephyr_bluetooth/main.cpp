@@ -68,13 +68,13 @@ int main()
 }
 
 bool LogCallBackExt
-(
+    (
     const char* a_fileName,
     int a_lineNumber,
     Zhen::LogLevel a_level,
     std::string const& a_tag,
     std::string const& a_log
-)
+    )
 {
     const char* file = a_fileName;
     const char* split = a_fileName;
@@ -95,19 +95,19 @@ bool LogCallBackExt
     switch( a_level )
     {
     case Zhen::LogLevel::Info:
-    type_s = "I";
+        type_s = "I";
     break;
     case Zhen::LogLevel::Debug:
-    type_s = "D";
+        type_s = "D";
     break;
     case Zhen::LogLevel::Warning:
-    type_s = "W";
+        type_s = "W";
     break;
     case Zhen::LogLevel::Error:
-    type_s = "E";
+        type_s = "E";
     break;
     case Zhen::LogLevel::Fatal:
-    type_s = "F";
+        type_s = "F";
     break;
     default:
     break;

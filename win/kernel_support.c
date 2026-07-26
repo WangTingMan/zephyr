@@ -458,8 +458,25 @@ int k_work_submit_to_queue
         return status;
     }
 
+    if( associate_signal_exist( work->associstate_signal_id ) )
+    {
+        work->associstate_signal_id = allocate_underlying_associate_signal(NULL);
+    }
+    reset_associate_signal( work->associstate_signal_id );
     status = post_task_to_thread(queue->thread_id->thread_id, work_detail_handler, work, 0);
     return status;
+}
+
+bool k_work_flush( struct k_work* work,
+    struct k_work_sync* sync )
+{
+    if( associate_signal_exist( work->associstate_signal_id ) )
+    {
+        uint32_t type = 0x00;
+        poll_event_( work->associstate_signal_id,&type );
+        return true;
+    }
+    return false;
 }
 
 void k_work_queue_init( struct k_work_q* queue )
@@ -643,9 +660,12 @@ void work_detail_handler( struct k_work* work )
     work->flags = K_WORK_RUNNING;
     release_mutex(work->underlying_mutex_id);
 
+
     if( hdr )
     {
+        reset_associate_signal( work->associstate_signal_id );
         hdr(work);
+        trigger_associate_signal( work->associstate_signal_id );
     }
 }
 
@@ -849,3 +869,4 @@ k_timeout_t sys_timepoint_timeout( k_timepoint_t timepoint )
     time.ticks = timepoint.tick - now_;
     return time;
 }
+

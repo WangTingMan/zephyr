@@ -1125,6 +1125,7 @@ BT_GATT_SERVICE_DEFINE( _1_gatt_svc,
 	BT_GATT_PRIMARY_SERVICE( BT_UUID_GATT ),
 	TOTAL_GATT_SERVER_PART
 );
+
 #else
 BT_GATT_SERVICE_DEFINE( _1_gatt_svc,
 	BT_GATT_PRIMARY_SERVICE( BT_UUID_GATT ),
@@ -1459,6 +1460,9 @@ BT_CONN_CB_DEFINE(gatt_conn_cb) = {
 	 */
 	.identity_resolved = bt_gatt_identity_resolved,
 };
+#ifdef _MSC_VER
+BT_CONN_CB_REGISTER( gatt_conn_cb );
+#endif
 #endif /* CONFIG_BT_SETTINGS && CONFIG_BT_SMP */
 
 static void bt_gatt_service_init(void)

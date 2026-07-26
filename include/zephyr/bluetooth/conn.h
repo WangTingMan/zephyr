@@ -2673,11 +2673,18 @@ int bt_conn_cb_unregister(struct bt_conn_cb *cb);
  *  @param _name Name of callback structure.
  */
 #ifdef _MSC_VER
-#define BT_CONN_CB_DEFINE(_name) struct bt_conn_cb _name
-/**
- * Need call:
- * bt_conn_cb_register(&_name);
- */
+#define BT_CONN_CB_DEFINE(_name)                                \
+    static const STRUCT_SECTION_ITERABLE( bt_conn_cb,           \
+        _CONCAT( bt_conn_cb_,                                   \
+        _name ) )
+#define BT_CONN_CB_REGISTER(_name)                                      \
+    void register_bt_conn_cb_instance( struct bt_conn_cb* );            \
+    static void _CONCAT( _CONCAT( bt_conn_cb_, _name ), __LINE__ )( )   \
+    {                                                                   \
+        register_bt_conn_cb_instance( &_CONCAT( bt_conn_cb_, _name ) ); \
+    }                                                                   \
+    REGISTER_PRE_MAIN( _CONCAT( _CONCAT( bt_conn_cb_, _name ), __LINE__ ) )
+
 #else
 #define BT_CONN_CB_DEFINE(_name)					\
 	static const STRUCT_SECTION_ITERABLE(bt_conn_cb,		\

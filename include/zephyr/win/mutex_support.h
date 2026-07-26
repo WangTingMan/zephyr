@@ -46,7 +46,45 @@ private:
     uint16_t m_next_id = 1;
 };
 
-using semaphone_type = std::counting_semaphore<0xFFFF>;
+class counting_semaphore_any
+{
+
+public:
+
+    counting_semaphore_any( uint32_t a_count )
+        : m_count( a_count )
+    {
+
+    }
+
+    void acquire();
+
+    void release();
+
+    bool try_acquire();
+
+    bool try_acquire_for( std::chrono::microseconds a_duration );
+
+    uint32_t get_count()
+    {
+        std::lock_guard locker(m_mutex);
+        return m_count;
+    }
+
+    void release_all()
+    {
+        std::lock_guard locker( m_mutex );
+        m_count = 0;
+    }
+
+private:
+
+    std::mutex m_mutex;
+    std::condition_variable m_contion;
+    uint32_t m_count = 0x00;
+};
+
+using semaphone_type = counting_semaphore_any;
 class semaphore_manager
 {
 public:
