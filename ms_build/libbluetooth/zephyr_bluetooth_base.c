@@ -158,7 +158,7 @@ void zephyr_init_()
     connection_cb.tx_power_report = &_tx_power_report;
     bt_conn_cb_register( &connection_cb );
 
-    pagemanger_initialize(&s_pairing_manager);
+    pairing_manager_initialize(&s_pairing_manager);
     err = bt_enable( bt_ready_cb_t_cb );
 
 }

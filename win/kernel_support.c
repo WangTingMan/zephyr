@@ -776,12 +776,26 @@ int k_poll( struct k_poll_event* events, int num_events,
 {
     uint32_t type;
     int st = 0;
-    st = poll_event_( events->kobj.associate_signal_id, &type );
-
-    if( Z_POLL_TYPE_BIT( _POLL_TYPE_DATA_AVAILABLE ) == type )
+    signal_control_block_t sig_cbs[MAX_POLL_OBJECT_COUNT] = { 0 };
+    int total_size = num_events < MAX_POLL_OBJECT_COUNT ? num_events : MAX_POLL_OBJECT_COUNT;
+    for( int i = 0; i < total_size; ++i )
     {
-        events->poll_event_state = K_POLL_STATE_FIFO_DATA_AVAILABLE;
+        sig_cbs[i].signal_id = events[i].kobj.associate_signal_id;
     }
+
+    st = poll_event_( sig_cbs, num_events );
+
+    for( int i = 0; i < total_size; ++i )
+    {
+        if( 1 != sig_cbs[i].state )
+        {
+            events[i].poll_event_state = 0;
+            continue;
+        }
+
+        events[i].poll_event_state = sig_cbs[i].type;
+    }
+
     return st;
 }
 

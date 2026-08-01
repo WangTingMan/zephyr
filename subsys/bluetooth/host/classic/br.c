@@ -1613,7 +1613,7 @@ static void unpair(const bt_addr_t *addr)
 {
 	struct bt_conn *conn = bt_conn_lookup_addr_br(addr);
 	struct bt_conn_auth_info_cb *listener, *next;
-
+    listener = next = NULL;
 	if (conn) {
 		bt_conn_disconnect(conn, BT_HCI_ERR_REMOTE_USER_TERM_CONN);
 		bt_conn_unref(conn);

@@ -735,7 +735,7 @@ check_pending_conn:
 void bt_hci_le_scan_timeout(struct net_buf *buf)
 {
 	struct bt_le_scan_cb *listener, *next;
-
+    listener = next = NULL;
 	int err = bt_le_scan_user_remove(BT_LE_SCAN_USER_EXPLICIT_SCAN);
 
 	if (err) {

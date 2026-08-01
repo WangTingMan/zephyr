@@ -65,6 +65,9 @@ int filesystem_open( void** zfp, const char* file_name, uint32_t flags )
     fcb->file_name.assign(file_name);
     std::bitset<32> bits( flags );
 
+    std::filesystem::path path( file_name );
+    bool file_exists = std::filesystem::exists( path, ec );
+
     std::ios_base::openmode op_m = 0x00;
     bool need_cread_if_not = false;
     if( IsFlagSet( bits, FILESYSTEM_O_READ ) )
@@ -74,12 +77,18 @@ int filesystem_open( void** zfp, const char* file_name, uint32_t flags )
     if( IsFlagSet( bits, FILESYSTEM_O_WRITE ) )
     {
         op_m |= std::ios_base::out;
-        need_cread_if_not = true;
+        if( !file_exists )
+        {
+            need_cread_if_not = true;
+        }
     }
     if( IsFlagSet( bits, FILESYSTEM_O_APPEND ) )
     {
         op_m |= std::ios_base::app;
-        need_cread_if_not = true;
+        if( !file_exists )
+        {
+            need_cread_if_not = true;
+        }
     }
     if( IsFlagSet( bits, FILESYSTEM_O_TRUNC ) )
     {
@@ -87,7 +96,6 @@ int filesystem_open( void** zfp, const char* file_name, uint32_t flags )
         need_cread_if_not = true;
     }
 
-    std::filesystem::path path( file_name );
     if( need_cread_if_not )
     {
         op_m |= std::ios_base::trunc;
@@ -98,6 +106,7 @@ int filesystem_open( void** zfp, const char* file_name, uint32_t flags )
     if( !is_opened )
     {
         delete fcb;
+        fcb = nullptr;
     }
 
     *zfp = fcb;
@@ -111,12 +120,15 @@ int filesystem_seek( void* zfp, size_t offset, int whence )
     {
     case SEEK_FROM_CUR:
         fcb->fstream.seekg( offset, std::ios::cur );
+        fcb->fstream.seekp( offset, std::ios::cur );
         break;
     case SEEK_FROM_BEGIN:
         fcb->fstream.seekg( offset, std::ios::beg );
+        fcb->fstream.seekp( offset, std::ios::beg );
     break;
     case SEEK_FROM_END:
         fcb->fstream.seekg( offset, std::ios::end );
+        fcb->fstream.seekp( offset, std::ios::end );
     break;
     default:
         return -1;

@@ -64,9 +64,33 @@ public:
         return sig;
     }
 
+    std::shared_ptr<associate_signal> get_one_idle_signal()
+    {
+        std::shared_ptr<associate_signal> sig;
+        std::unique_lock locker( m_mutex_for_this );
+        if( m_idle_signals.empty() )
+        {
+            uint64_t id = m_next_id++;
+            sig = std::make_shared<associate_signal>( id );
+        }
+        else
+        {
+            sig = m_idle_signals.back();
+            m_idle_signals.pop_back();
+        }
+        return sig;
+    }
+
+    void return_back_idle_signal( std::shared_ptr<associate_signal> a_sig )
+    {
+        std::unique_lock locker( m_mutex_for_this );
+        m_idle_signals.push_back( a_sig );
+    }
+
 private:
 
     std::mutex m_mutex_for_this;
     uint64_t m_next_id = 50;
     std::vector<std::shared_ptr<associate_signal>> m_signals;
+    std::vector<std::shared_ptr<associate_signal>> m_idle_signals;
 };

@@ -1,5 +1,6 @@
 #include "BluetoothBaseImplementation.h"
 #include "BluetoothAvrcpTargetInterfaceImpl.h"
+#include "bluetooth_l2cap_coc_implementation.h"
 
 #include "zephyr_bluetooth_base.h"
 #include <base/logging.h>
@@ -102,6 +103,32 @@ void _inquiry_state_changed( int a_started )
     PageManager::GetInstance().PostEvent( event );
 }
 
+void _pairing_confirm_request
+    (
+    char const* a_name,
+    char const* a_addr,
+    uint32_t    a_psk,
+    uint32_t    a_method
+    )
+{
+    std::string name;
+    if( a_name )
+    {
+        name.assign( a_name );
+        name = UTF8_To_string( name );
+    }
+
+    BluetoothAddress address;
+    memcpy( address.address, a_addr, 6 );
+
+    SppPairingMethod pm;
+    pm = SppPairingMethod::BT_SSP_VARIANT_PASSKEY_CONFIRMATION;
+    auto fun = std::bind( &Adaptor::OnSppPairingConfRequest, std::ref( Adaptor::GetInstance() ),
+        address, name, a_psk, pm );
+    std::shared_ptr< ExecutbleEvent > event = std::make_shared<ExecutbleEvent>( fun );
+    PageManager::GetInstance().PostEvent( event );
+}
+
 }
 
 BluetoothBaseImplementation& BluetoothBaseImplementation::GetInstance()
@@ -172,9 +199,16 @@ bool BluetoothBaseImplementation::SetLocalDeviceSettings( bool a_pairable, bool 
     return true;
 }
 
-bool BluetoothBaseImplementation::SspPairingReply( BluetoothAddress a_address, bool a_accept, SppPairingMethod a_pairingMethod, uint32_t a_passkey )
+bool BluetoothBaseImplementation::SspPairingReply
+    (
+    BluetoothAddress a_address,
+    bool a_accept,
+    SppPairingMethod a_pairingMethod,
+    uint32_t a_passkey
+    )
 {
-    return false;
+    zephyr_pairing_passkey_reply( a_address.address, a_accept );
+    return true;
 }
 
 bool BluetoothBaseImplementation::PincodeReply( BluetoothAddress a_address, bool a_accept, std::vector<uint8_t> a_pin )
@@ -204,3 +238,11 @@ bool BluetoothBaseImplementation::LoadBluetoothLibrary()
     return false;
 }
 
+std::vector<std::shared_ptr<bluetooth_interface>> BluetoothBaseInterface::LoadLowLevelInterfaces()
+{
+    std::vector<std::shared_ptr<bluetooth_interface>> interfaces;
+
+    interfaces.push_back( std::make_shared<bluetooth_l2cap_coc_implementation>() );
+
+    return interfaces;
+}

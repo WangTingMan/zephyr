@@ -210,20 +210,56 @@ void poll_event_init
 
 int poll_event_
     (
-    uint64_t a_signal_id,
-    uint32_t* a_type
+    signal_control_block_t* a_signal_id_array,
+    uint16_t                a_signal_id_size
     )
 {
-    auto first_sig = associate_signal_manager::get_instance().get_associate_signal( a_signal_id );
-    first_sig->wait();
-    first_sig->get_status();
-    first_sig->reset();
-    auto user = first_sig->get_bond_user_data();
-    if( user )
+    int index = 0;
+    auto down_signal = associate_signal_manager::get_instance().get_one_idle_signal();
+    std::vector<std::shared_ptr<associate_signal>> up_signals;
+    for( int i = 0; i < a_signal_id_size; ++i )
     {
-        *a_type = user->type;
+        auto up_signal = associate_signal_manager::get_instance().get_associate_signal( a_signal_id_array[i].signal_id );
+        up_signals.push_back( up_signal );
+        if( !up_signal )
+        {
+            continue;
+        }
+
+        down_signal->bind_upstream( up_signal );
     }
-    return 0;
+
+    down_signal->wait();
+    down_signal->reset();
+    down_signal->disconnect_all_signal();
+    associate_signal_manager::get_instance().return_back_idle_signal( down_signal );
+
+    for( int i = 0; i < up_signals.size(); ++i )
+    {
+        if( !up_signals[i] )
+        {
+            continue;
+        }
+
+        auto triggered = up_signals[i]->get_status();
+        if( triggered )
+        {
+            a_signal_id_array[i].state = 1;
+            index = i;
+            auto user = up_signals[i]->get_bond_user_data();
+            if( user )
+            {
+                a_signal_id_array[i].type = user->type;
+            }
+            up_signals[i]->reset();
+        }
+        else
+        {
+            a_signal_id_array[i].state = 0;
+        }
+    }
+
+    return index;
 }
 
 #ifdef __cplusplus

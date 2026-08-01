@@ -16,6 +16,8 @@ void set_local_name(const char* a_name);
 
 int zephyr_pair_device(const uint8_t* a_addr);
 
+void zephyr_pairing_passkey_reply( const uint8_t* a_addr, int a_accept );
+
 #ifdef __cplusplus
 }
 #endif

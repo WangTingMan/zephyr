@@ -57,6 +57,9 @@
     <ClInclude Include="pairing_manager.h">
       <Filter>header</Filter>
     </ClInclude>
+    <ClInclude Include="bluetooth_l2cap_coc_implementation.h">
+      <Filter>header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BluetoothA2DPImplementation.cpp">
@@ -99,6 +102,9 @@
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="pairing_manager.c">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="bluetooth_l2cap_coc_implementation.cpp">
       <Filter>source</Filter>
     </ClCompile>
   </ItemGroup>

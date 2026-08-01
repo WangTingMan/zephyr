@@ -13,6 +13,10 @@
 extern "C" {
 #endif
 
+#ifndef MAX_POLL_OBJECT_COUNT
+#define MAX_POLL_OBJECT_COUNT 100
+#endif
+
 enum
 {
     tracked_task_queued,
@@ -94,10 +98,17 @@ void poll_event_init
     int mode
     );
 
+typedef struct signal_control_block__
+{
+    uint64_t signal_id;
+    int      state;/*1: triggered; 0: not triggered*/
+    uint32_t type;
+} signal_control_block_t;
+
 int poll_event_
     (
-    uint64_t a_signal_id,
-    uint32_t* a_type
+    signal_control_block_t* a_signal_id_array,
+    uint16_t                a_signal_id_size
     );
 
 void initialize_hci();

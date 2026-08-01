@@ -31,6 +31,7 @@
     <ClInclude Include="BluetoothHidHostImplementation.h" />
     <ClInclude Include="BluetoothPANImplementation.h" />
     <ClInclude Include="BluetoothRfcommImplementation.h" />
+    <ClInclude Include="bluetooth_l2cap_coc_implementation.h" />
     <ClInclude Include="pairing_manager.h" />
     <ClInclude Include="zephyr_bluetooth_base.h" />
   </ItemGroup>
@@ -47,6 +48,7 @@
     <ClCompile Include="BluetoothHidHostImplementation.cpp" />
     <ClCompile Include="BluetoothPANImplementation.cpp" />
     <ClCompile Include="BluetoothRfcommImplementation.cpp" />
+    <ClCompile Include="bluetooth_l2cap_coc_implementation.cpp" />
     <ClCompile Include="pairing_manager.c" />
     <ClCompile Include="zephyr_bluetooth_base.c" />
   </ItemGroup>
@@ -103,7 +105,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir);$(ProjectDir)../../include;$(ProjectDir)../../thirdparty\Zhen\BluetoothApplication;$(ProjectDir)../../thirdparty\Zhen;$(ProjectDir)../../thirdparty\chromebase;$(ProjectDir)../../thirdparty\boost_signals2;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)../../include;$(ProjectDir)../../thirdparty\Zhen\BluetoothApplication;$(ProjectDir)../../thirdparty\Zhen;$(ProjectDir)../../thirdparty\chromebase;$(ProjectDir)../../thirdparty\boost_signals2;$(ProjectDir)../../subsys;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

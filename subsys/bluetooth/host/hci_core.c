@@ -123,9 +123,7 @@ static void rx_work_handler(struct k_work *work);
 static K_WORK_DEFINE(rx_work, rx_work_handler);
 #if defined(CONFIG_BT_RECV_WORKQ_BT)
 static struct k_work_q bt_workq;
-#ifdef _MSC_VER
-static k_thread_stack_t rx_thread_stack[20];
-#else
+#ifndef _MSC_VER
 static K_KERNEL_STACK_DEFINE(rx_thread_stack, CONFIG_BT_RX_STACK_SIZE);
 #endif
 #endif /* CONFIG_BT_RECV_WORKQ_BT */
@@ -4779,9 +4777,14 @@ int bt_enable(bt_ready_cb_t cb)
 #if defined(CONFIG_BT_RECV_WORKQ_BT)
 	/* RX thread */
 	k_work_queue_init(&bt_workq);
+#ifdef _MSC_VER
+    k_work_queue_start( &bt_workq, NULL, 0,
+        K_PRIO_COOP( CONFIG_BT_RX_PRIO ), NULL );
+#else
 	k_work_queue_start(&bt_workq, rx_thread_stack,
 			   CONFIG_BT_RX_STACK_SIZE,
 			   K_PRIO_COOP(CONFIG_BT_RX_PRIO), NULL);
+#endif
 	k_thread_name_set(bt_workq.thread_id, "BT RX WQ");
 #endif
 
