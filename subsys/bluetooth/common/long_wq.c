@@ -11,9 +11,9 @@
 #include <zephyr/kernel.h>
 #include <zephyr/init.h>
 #include <zephyr/kernel/thread_stack.h>
-#include <zephyr/sys_clock.h>
+#include <zephyr/sys/clock.h>
+
 #ifdef _MSC_VER
-struct z_thread_stack_element bt_lw_stack_area[2048];
 #else
 K_THREAD_STACK_DEFINE(bt_lw_stack_area, CONFIG_BT_LONG_WQ_STACK_SIZE);
 #endif
@@ -41,10 +41,13 @@ static int long_wq_init(void)
 
 	k_work_queue_init(&bt_long_wq);
 
+#ifdef _MSC_VER
+    k_work_queue_start( &bt_long_wq, NULL, 0, CONFIG_BT_LONG_WQ_PRIO, &cfg );
+#else
 	k_work_queue_start(&bt_long_wq, bt_lw_stack_area,
 			   K_THREAD_STACK_SIZEOF(bt_lw_stack_area),
 			   CONFIG_BT_LONG_WQ_PRIO, &cfg);
-
+#endif
 	return 0;
 }
 #ifndef _MSC_VER
