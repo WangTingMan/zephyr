@@ -235,9 +235,8 @@ NET_SOCKET_SERVICE_SYNC_DEFINE_STATIC(v6_svc, dns_dispatcher_svc_handler,
 				      MDNS_V6_SVC_POLL_COUNT);
 #endif
 
-static struct net_mgmt_event_callback mgmt_iface_cb;
-
 #if defined(CONFIG_MDNS_RESPONDER_PROBE)
+static struct net_mgmt_event_callback mgmt_iface_cb;
 static void cancel_probes(struct mdns_responder_context *ctx);
 static struct net_mgmt_event_callback mgmt_conn_cb;
 #if defined(CONFIG_NET_IPV4)
@@ -329,6 +328,7 @@ static void mark_needs_announce(struct net_if *iface, bool needs_announce)
 }
 #endif /* CONFIG_MDNS_RESPONDER_PROBE */
 
+#if defined(CONFIG_MDNS_RESPONDER_PROBE)
 static void mdns_iface_event_handler(struct net_mgmt_event_callback *cb,
 				     uint64_t mgmt_event, struct net_if *iface)
 
@@ -337,73 +337,14 @@ static void mdns_iface_event_handler(struct net_mgmt_event_callback *cb,
 		return;
 	}
 
-	if (mgmt_event == NET_EVENT_IF_UP) {
-		/* When the interface comes back up (e.g. Ethernet cable was
-		 * reattached), the stack has left the mDNS multicast groups if
-		 * the interface was fully brought down. Rejoin them here so
-		 * that the responder keeps receiving queries. The well-known
-		 * group addresses are constant, so construct them directly
-		 * instead of relying on any interface-index bookkeeping.
-		 */
-#if defined(CONFIG_NET_IPV4)
-		if (net_if_flag_is_set(iface, NET_IF_IPV4)) {
-			struct net_sockaddr_in addr4;
-			int ret;
-
-			create_ipv4_addr(&addr4);
-
-			/* Rejoin so that a fresh IGMP membership report is always
-			 * emitted, even when the group is still locally marked as
-			 * joined (net_ipv4_igmp_join() would return early without
-			 * sending a report in that case). This matters for e.g. an
-			 * IGMP-snooping switch that dropped its state while the link
-			 * was down. If the group was fully removed while the
-			 * interface was down, rejoin returns -ENOENT, so fall back
-			 * to a join which re-adds it.
-			 */
-			ret = net_ipv4_igmp_rejoin(iface, &addr4.sin_addr);
-			if (ret == -ENOENT) {
-				ret = net_ipv4_igmp_join(iface, &addr4.sin_addr, NULL);
-			}
-
-			if (ret < 0) {
-				NET_DBG("Cannot add IPv4 multicast address %s to iface %d (%d)",
-					net_sprint_ipv4_addr(&addr4.sin_addr),
-					net_if_get_by_iface(iface), ret);
-			}
-		}
-#endif /* defined(CONFIG_NET_IPV4) */
-
-#if defined(CONFIG_NET_IPV6)
-		if (net_if_flag_is_set(iface, NET_IF_IPV6)) {
-			struct net_sockaddr_in6 addr6;
-			int ret;
-
-			create_ipv6_addr(&addr6);
-
-			ret = net_ipv6_mld_rejoin(iface, &addr6.sin6_addr);
-			if (ret == -ENOENT) {
-				ret = net_ipv6_mld_join(iface, &addr6.sin6_addr);
-			}
-
-			if (ret < 0) {
-				NET_DBG("Cannot add IPv6 multicast address %s to iface %d (%d)",
-					net_sprint_ipv6_addr(&addr6.sin6_addr),
-					net_if_get_by_iface(iface), ret);
-			}
-		}
-#endif /* defined(CONFIG_NET_IPV6) */
-	}
-
-#if defined(CONFIG_MDNS_RESPONDER_PROBE)
 	if (mgmt_event == NET_EVENT_IF_UP && init_listener_done) {
 		do_announce = true;
 		announce_count = 0;
 
 		mark_needs_announce(iface, true);
 	}
-#endif /* CONFIG_MDNS_RESPONDER_PROBE */
 }
+#endif /* CONFIG_MDNS_RESPONDER_PROBE */
 
 static int set_ttl_hop_limit(int sock, int level, int option, int new_limit)
 {
@@ -668,7 +609,6 @@ static void send_sd_response(int sock,
 			     net_sa_family_t family,
 			     struct net_sockaddr *src_addr,
 			     size_t addrlen,
-			     struct dns_msg_t *dns_msg,
 			     struct net_buf *result)
 {
 	struct net_if *iface;
@@ -750,8 +690,11 @@ static void send_sd_response(int sock,
 		}
 	}
 
-	ret = dns_sd_query_extract(dns_msg->msg,
-		dns_msg->msg_size, &filter, label, size, &n);
+	/* result->data is already the decompressed name for this question, following
+	 * any compression pointer (RFC 1035 4.1.4) avahi uses on questions after the
+	 * first in a batched query.
+	 */
+	ret = dns_sd_query_extract(result->data, result->len, &filter, label, size, &n);
 	if (ret < 0) {
 		NET_DBG("unable to extract query (%d)", ret);
 		return;
@@ -805,7 +748,7 @@ static void send_sd_response(int sock,
 				}
 			} else {
 				ret = dns_sd_handle_ptr_query(iface, record, addr4, addr6,
-						result->data, net_buf_max_len(result));
+						result->data, net_buf_max_len(result), false);
 				if (ret < 0) {
 					NET_DBG("dns_sd_handle_ptr_query() failed (%d)", ret);
 					continue;
@@ -911,8 +854,7 @@ static int dns_read(int sock,
 				      result, qtype);
 		} else if (IS_ENABLED(CONFIG_MDNS_RESPONDER_DNS_SD)
 			&& qtype == DNS_RR_TYPE_PTR) {
-			send_sd_response(sock, family, src_addr, addrlen,
-					 &dns_msg, result);
+			send_sd_response(sock, family, src_addr, addrlen, result);
 		}
 
 	} while (--queries);
@@ -1130,7 +1072,7 @@ static int send_probe(struct mdns_responder_context *ctx)
 	 * not use cache.
 	 */
 	ret = dns_resolve_name_internal(&ctx->probe_ctx, ctx->probe_data.query,
-					DNS_RR_TYPE_ANY,
+					DNS_QUERY_TYPE_ANY,
 					&ctx->probe_data.dns_id, probe_cb,
 					&ctx->probe_data, PROBE_TIMEOUT,
 					false);
@@ -1215,6 +1157,16 @@ static void probing(struct k_work *work)
 static void start_announce(struct net_if *iface)
 {
 	int ret;
+
+	/* Don't preempt the probe -> init_listener sequence on the very first
+	 * address (e.g. DHCP binding races the RFC 6762 probe timer). Once
+	 * init_listener() succeeds it already announces via its own call to
+	 * announce_start() below, so this is only needed for re-announces
+	 * after the listener is already up (lease renewal, etc).
+	 */
+	if (!init_listener_done) {
+		return;
+	}
 
 	do_announce = true;
 	announce_count = 0;
@@ -1858,6 +1810,7 @@ static int init_listener(void)
 
 #if defined(CONFIG_MDNS_RESPONDER_RUNTIME_IFACE_CONTROL)
 static K_MUTEX_DEFINE(reconfigure_lock);
+static void mdns_leave_groups_cb(struct net_if *iface, void *user_data);
 
 /* Tear down every listener socket and its dispatcher registration. The sockets
  * are recreated for the interfaces that remain enabled by init_listener().
@@ -1944,6 +1897,7 @@ int mdns_test_reinit_with_stale_slot(unsigned int slot)
 {
 	/* Start from a clean state (every slot marked closed). */
 	mdns_close_listeners();
+	net_if_foreach(mdns_leave_groups_cb, NULL);
 
 #if defined(CONFIG_NET_IPV6)
 	if (slot < ARRAY_SIZE(v6_ctx)) {
@@ -2162,7 +2116,7 @@ static struct net_buf *create_unsolicited_mdns_answer(struct net_if *iface,
 		     left < (1 + 1 + 2 + 2 + 4 + 4 +
 			     (type == DNS_RR_TYPE_A ? sizeof(struct net_in_addr) :
 			      sizeof(struct net_in6_addr))))) {
-			NET_DBG("No more space (%u left)", left);
+			NET_DBG("No more space (%zu left)", left);
 			net_buf_unref(answer);
 			return NULL;
 		}
@@ -2223,6 +2177,69 @@ static bool check_if_needs_announce(struct net_if *iface)
 	return false;
 }
 
+#if defined(CONFIG_MDNS_RESPONDER_ANNOUNCE_DNS_SD)
+/* RFC 6762 8.3 requires announcing all newly registered records, not just addresses. Sends
+ * one extra packet per service via dns_sd_handle_ptr_query() (already used for direct
+ * queries), since that encoder resets its own header and can't compose into the address
+ * announce's buffer without a rewrite.
+ */
+static void send_dns_sd_announce(struct net_if *iface, int sock, net_sa_family_t family,
+				 struct net_sockaddr *dst_addr, net_socklen_t dst_len)
+{
+	const struct net_in_addr *addr4 = NULL;
+	const struct net_in6_addr *addr6 = NULL;
+	const struct dns_sd_rec *record;
+	struct net_buf *answer;
+	size_t rec_num;
+	size_t ext_rec_num = external_records_count;
+	int ret;
+
+	if (IS_ENABLED(CONFIG_NET_IPV4) && family == NET_AF_INET) {
+		addr4 = net_if_ipv4_select_src_addr(iface, &net_sin(dst_addr)->sin_addr);
+	} else if (IS_ENABLED(CONFIG_NET_IPV6) && family == NET_AF_INET6) {
+		addr6 = net_if_ipv6_select_src_addr(iface, &net_sin6(dst_addr)->sin6_addr);
+	} else {
+		return;
+	}
+
+	answer = net_buf_alloc(&mdns_msg_pool, BUF_ALLOC_TIMEOUT);
+	if (answer == NULL) {
+		return;
+	}
+
+	DNS_SD_COUNT(&rec_num);
+
+	while (rec_num > 0 || ext_rec_num > 0) {
+		if (rec_num > 0) {
+			DNS_SD_GET(rec_num - 1, &record);
+			rec_num--;
+		} else {
+			record = &external_records[ext_rec_num - 1];
+			ext_rec_num--;
+		}
+
+		ret = dns_sd_handle_ptr_query(iface, record, addr4, addr6, answer->data,
+					      net_buf_max_len(answer), true);
+		if (ret < 0) {
+			continue;
+		}
+
+		answer->len = ret;
+
+		ret = zsock_sendto(sock, answer->data, answer->len, 0, dst_addr, dst_len);
+		if (ret < 0) {
+			NET_DBG("Cannot send %s DNS-SD announce for %s.%s.%s.%s (%d)", "mDNS",
+				record->instance, record->service, record->proto, record->domain,
+				-errno);
+		} else {
+			net_stats_update_dns_sent(iface);
+		}
+	}
+
+	net_buf_unref(answer);
+}
+#endif /* CONFIG_MDNS_RESPONDER_ANNOUNCE_DNS_SD */
+
 static int send_announce(const char *name)
 {
 	struct net_buf *answer;
@@ -2268,6 +2285,11 @@ static int send_announce(const char *name)
 
 		NET_DBG("Announcing %s responder for %s%s (iface %d)",
 			"mDNS", name, ".local", net_if_get_by_iface(v4_ctx[i].iface));
+
+#if defined(CONFIG_MDNS_RESPONDER_ANNOUNCE_DNS_SD)
+		send_dns_sd_announce(v4_ctx[i].iface, v4_ctx[i].sock, NET_AF_INET,
+				     (struct net_sockaddr *)&dst_addr4, sizeof(dst_addr4));
+#endif
 	}
 #endif /* defined(CONFIG_NET_IPV4) */
 
@@ -2311,6 +2333,11 @@ static int send_announce(const char *name)
 
 		NET_DBG("Announcing %s responder for %s%s (iface %d)",
 			"mDNS", name, ".local", net_if_get_by_iface(v6_ctx[i].iface));
+
+#if defined(CONFIG_MDNS_RESPONDER_ANNOUNCE_DNS_SD)
+		send_dns_sd_announce(v6_ctx[i].iface, v6_ctx[i].sock, NET_AF_INET6,
+				     (struct net_sockaddr *)&dst_addr6, sizeof(dst_addr6));
+#endif
 	}
 #endif /* defined(CONFIG_NET_IPV6) */
 
@@ -2382,15 +2409,14 @@ static void do_init_listener(struct k_work *work)
 
 static int mdns_responder_init(void)
 {
-	uint64_t flags = NET_EVENT_IF_UP;
 	external_records = NULL;
 	external_records_count = 0;
 
-	net_mgmt_init_event_callback(&mgmt_iface_cb, mdns_iface_event_handler, flags);
-	net_mgmt_add_event_callback(&mgmt_iface_cb);
-
 #if defined(CONFIG_MDNS_RESPONDER_PROBE)
 	int ret;
+
+	net_mgmt_init_event_callback(&mgmt_iface_cb, mdns_iface_event_handler, NET_EVENT_IF_UP);
+	net_mgmt_add_event_callback(&mgmt_iface_cb);
 
 	net_mgmt_init_event_callback(&mgmt_conn_cb, mdns_conn_event_handler,
 				     NET_EVENT_L4_DISCONNECTED);
