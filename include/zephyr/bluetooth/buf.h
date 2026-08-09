@@ -61,6 +61,12 @@ enum bt_buf_dir {
 	BT_BUF_OUT,
 };
 
+typedef struct memory_alllocater_
+{
+    void* ( *allo_ )( uint16_t size );
+    void ( *free_ )( void* );
+} memory_alllocater;
+
 /** Convert from bt_buf_type to H:4 type.
  *
  *  @param type The bt_buf_type to convert
@@ -244,6 +250,29 @@ struct net_buf *bt_buf_get_tx(enum bt_buf_type type, k_timeout_t timeout,
  *  @return A new buffer.
  */
 struct net_buf *bt_buf_get_evt(uint8_t evt, bool discardable, k_timeout_t timeout);
+
+void set_memory_allocater( memory_alllocater a_memory );
+
+/**
+ * @brief Allocate memory block with specified size from internal heap
+ * @param a_size Size of memory to allocate in bytes
+ * @return Pointer to allocated memory on success; NULL if allocation fails
+ * @note Critical Requirements:
+ * 1. Memory allocated by this function MUST be released via memory_free() only.
+ * 2. Do NOT use free(), delete or any other memory deallocation APIs for memory obtained from this function.
+ * 3. memory_allocate() and memory_free() shall be called in pairs to prevent memory leak and heap corruption.
+ */
+void* memory_allocate(uint16_t a_size);
+
+/**
+ * @brief Free memory block allocated by memory_allocate()
+ * @param a_memory Pointer returned from memory_allocate(). NULL pointer is safely handled.
+ * @note Critical Requirements:
+ * 1. This function shall ONLY free memory allocated by memory_allocate().
+ * 2. Attempting to free memory from other allocators causes heap corruption.
+ * 3. Allocation and deallocation must be paired. Double-free of the same block is prohibited.
+ */
+void memory_free(void* a_memory);
 
 /**
  * @}

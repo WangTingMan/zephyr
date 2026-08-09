@@ -5,6 +5,8 @@
 #include <zephyr/logging/log.h>
 #include <zephyr/bluetooth/classic/classic.h>
 #include <zephyr/bluetooth/conn.h>
+#include <zephyr\toolchain\common.h>
+#include <zephyr/shell/shell.h>
 
 struct bt_br_discovery_cb discovery_cb;
 struct bt_br_discovery_result scan_result[20];
@@ -12,6 +14,12 @@ struct bt_conn_cb connection_cb;
 extern pairing_manager_t s_pairing_manager;
 
 void _new_device_found
+    (
+    char const* a_name,
+    char const* a_addr
+    );
+
+void _new_bond_device
     (
     char const* a_name,
     char const* a_addr
@@ -53,6 +61,16 @@ void discovery_timeout( const struct bt_br_discovery_result* results,
     _inquiry_state_changed( false );
 }
 
+void bond_device_handler( const struct bt_br_bond_info* info, void* user_data )
+{
+    _new_bond_device( NULL, info->addr.val );
+}
+
+void retrieve_all_bond_devices(void* parameter)
+{
+    bt_br_foreach_bond( bond_device_handler, NULL );
+}
+
 void bt_ready_cb_t_cb( int err )
 {
     _adapter_state_ready_callback();
@@ -60,6 +78,8 @@ void bt_ready_cb_t_cb( int err )
     const char* local_name = bt_get_name();
 
     _local_name_changed(local_name);
+
+    do_in_main_thread( retrieve_all_bond_devices, NULL, NULL );
 }
 
 void _connected( struct bt_conn* conn, uint8_t err )
@@ -209,5 +229,4 @@ void set_local_name( const char* a_name )
         _local_name_changed(a_name);
     }
 }
-
 

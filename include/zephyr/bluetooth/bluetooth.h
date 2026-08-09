@@ -3028,6 +3028,35 @@ bool bt_le_bond_exists(uint8_t id, const bt_addr_le_t *addr);
 uint16_t ltv_parser(uint8_t const* a_raw_data, uint16_t a_raw_data_size,
     struct bt_data* a_out, uint16_t a_max_ltv_to_use);
 
+typedef void (*function_task_type)(void* parameter);
+typedef void (*parameter_free_type)(void* parameter);
+/**
+ * @brief Dispatch a task to execute on bt_workq thread (main work queue context).
+ *
+ * Allocates a work item, encapsulates task information and submits to the dedicated work queue.
+ * When queued successfully, the task will run asynchronously on bt_workq thread.
+ * The task argument and cleanup callback rules:
+ *  - @p a_parameter_free and @p a_parameter can be NULL independently, or both NULL.
+ *  - If @p a_parameter_free is not NULL, it will be invoked automatically after the task executes.
+ *  - If @p a_parameter_free is NULL, no automatic cleanup will be performed on @p a_parameter.
+ *
+ * @param a_task            Pointer to the task function to execute. Must not be NULL.
+ * @param a_parameter_free  Optional cleanup callback invoked after task execution; can be NULL.
+ * @param a_parameter       Generic user argument passed to @p a_task.
+ *
+ * @retval 0                Task enqueue succeeded. Task and cleanup callback will be triggered later.
+ * @retval -ENOMEM          Memory allocation for work item failed. Caller owns @p a_parameter.
+ * @retval Other negative   returned failure. Caller owns @p a_parameter.
+ *
+ * @note After successful return (0), do not access or free @p a_parameter from caller context.
+ *       Resource cleanup is delegated to @p a_parameter_free.
+ * @note If this function returns non-zero, task will NOT run. The caller is responsible for
+ *       releasing resources associated with @p a_parameter.
+ * @warning Long blocking operations inside @p a_task will stall the entire bt_workq.
+ * @warning This function is thread-safe and can be invoked from worker threads.
+ */
+int do_in_main_thread( function_task_type a_task, parameter_free_type a_parameter_free, void* parameter );
+
 /**
  * @}
  */

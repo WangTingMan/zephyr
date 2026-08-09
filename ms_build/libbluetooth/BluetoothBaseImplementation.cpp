@@ -43,6 +43,25 @@ void _new_device_found
     PageManager::GetInstance().PostEvent( event );
 }
 
+void _new_bond_device
+    (
+    char const* a_name,
+    char const* a_addr
+    )
+{
+    BluetoothAddress address;
+    memcpy( address.address, a_addr, 6 );
+    RemoteDevice remote_dev;
+    remote_dev.address = address;
+    std::string name;
+    name.assign( a_name );
+    remote_dev.name = UTF8_To_string( name );
+
+    auto fun = std::bind( &Adaptor::OnPairedDeviceReceived, std::ref( Adaptor::GetInstance() ), remote_dev );
+    std::shared_ptr< ExecutbleEvent > event = std::make_shared<ExecutbleEvent>( fun );
+    PageManager::GetInstance().PostEvent( event );
+}
+
 void _inquiry_work_finished()
 {
     std::shared_ptr<ExecutbleEvent> event = std::make_shared<ExecutbleEvent>

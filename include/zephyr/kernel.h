@@ -177,6 +177,10 @@ static inline void
 #endif
 }
 
+#ifdef _MSC_VER
+void k_kernel_init();
+#endif
+
 /**
  * @brief Callback type used by thread iteration functions.
  *
@@ -185,10 +189,6 @@ static inline void
  */
 typedef void (*k_thread_user_cb_t)(const struct k_thread *thread,
 				   void *user_data);
-
-#ifdef _MSC_VER
-void k_kernel_init();
-#endif
 
 /**
  * @brief Iterate over all the threads in the system.

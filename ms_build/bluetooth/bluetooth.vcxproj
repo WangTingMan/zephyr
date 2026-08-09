@@ -78,6 +78,7 @@
     <ClCompile Include="..\..\subsys\bluetooth\host\smp.c" />
     <ClCompile Include="..\..\subsys\bluetooth\host\smp_null.c" />
     <ClCompile Include="..\..\subsys\bluetooth\host\uuid.c" />
+    <ClCompile Include="..\..\subsys\bluetooth\win\freertos_heap4.c" />
     <ClCompile Include="..\..\subsys\bluetooth\win\static_sections.c" />
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +209,7 @@
     <ClInclude Include="..\..\subsys\bluetooth\common\long_wq.h" />
     <ClInclude Include="..\..\subsys\bluetooth\common\rpa.h" />
     <ClInclude Include="..\..\subsys\bluetooth\crypto\bt_crypto.h" />
+    <ClInclude Include="..\..\subsys\bluetooth\win\freertos_heap4.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

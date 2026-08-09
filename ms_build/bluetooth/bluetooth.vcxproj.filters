@@ -219,6 +219,9 @@
     <ClCompile Include="..\..\subsys\bluetooth\crypto\bt_crypto_psa.c">
       <Filter>crypto</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\subsys\bluetooth\win\freertos_heap4.c">
+      <Filter>win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\subsys\bluetooth\common\assert.h">
@@ -601,6 +604,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\zephyr\bluetooth\services\nus\inst.h">
       <Filter>include\services\nus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\subsys\bluetooth\win\freertos_heap4.h">
+      <Filter>win</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

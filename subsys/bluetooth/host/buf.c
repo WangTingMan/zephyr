@@ -38,6 +38,7 @@ LOG_MODULE_REGISTER(bt_buf, CONFIG_BT_LOG_LEVEL);
 #define SYNC_EVT_SIZE (BT_BUF_RESERVE + BT_HCI_EVT_HDR_SIZE + 255)
 
 static atomic_ptr_t buf_rx_freed_cb;
+static memory_alllocater s_memory_operator = {0x00};
 
 static void buf_rx_freed_notify(enum bt_buf_type mask)
 {
@@ -262,3 +263,19 @@ bool bt_buf_has_view(const struct net_buf *parent)
 	/* This is enforced by `make_view`. see comment there. */
 	return parent->size == 0 && parent->data == NULL;
 }
+
+void set_memory_allocater( memory_alllocater a_memory )
+{
+    s_memory_operator = a_memory;
+}
+
+void* memory_allocate( uint16_t a_size )
+{
+    return s_memory_operator.allo_(a_size);
+}
+
+void memory_free( void* a_memory )
+{
+    s_memory_operator.free_(a_memory);
+}
+

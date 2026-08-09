@@ -45,6 +45,7 @@
 #include <zephyr/sys/clock.h>
 #include <zephyr/toolchain.h>
 #include <soc.h>
+#include <win/freertos_heap4.h>
 
 #include "addr_internal.h"
 #include "adv.h"
@@ -4727,6 +4728,73 @@ void bt_testing_set_iso_mtu(uint16_t mtu)
 #endif /* CONFIG_BT_ISO */
 #endif /* CONFIG_BT_TESTING */
 
+void* freertos_heap4_allo(uint16_t a_size)
+{
+    return pvPortMalloc(a_size);
+}
+
+void freertos_heap4_free( void* p )
+{
+    vPortFree(p);
+}
+
+typedef struct task_wrapper_
+{
+    function_task_type _task;
+    parameter_free_type _parameter_free;
+    void* _parameter;
+} task_wrapper_t;
+
+typedef struct {
+    struct k_work work;
+    task_wrapper_t wrapper;
+} work_with_task_t;
+
+void work_handler_( struct k_work* work )
+{
+    work_with_task_t* work_container = NULL;
+    work_container = ( work_with_task_t* )work;
+
+    task_wrapper_t task;
+    task = work_container->wrapper;
+
+    memory_free(work_container);
+
+    task._task(task._parameter);
+
+    if( task._parameter_free )
+    {
+        task._parameter_free(task._parameter);
+    }
+}
+
+int do_in_main_thread( function_task_type a_task, parameter_free_type a_parameter_free, void* a_parameter )
+{
+    int err = 0;
+    work_with_task_t* work_container = NULL;
+    work_container = memory_allocate( sizeof( work_with_task_t ) );
+    if( work_container == NULL )
+    {
+        /*post task failed*/
+        return -ENOMEM;
+    }
+
+    k_work_init( &work_container->work, work_handler_ );
+
+    work_container->wrapper._parameter = a_parameter;
+    work_container->wrapper._parameter_free = a_parameter_free;
+    work_container->wrapper._task = a_task;
+
+    err = k_work_submit_to_queue( &bt_workq, work_container );
+    if( err < 0 )
+    {
+        /*post task failed*/
+        memory_free( work_container );
+    }
+
+    return err;
+}
+
 int bt_enable(bt_ready_cb_t cb)
 {
 	int err;
@@ -4748,6 +4816,16 @@ int bt_enable(bt_ready_cb_t cb)
 	if (atomic_test_and_set_bit(bt_dev.flags, BT_DEV_ENABLE)) {
 		return -EALREADY;
 	}
+
+    memory_alllocater mem;
+#ifdef _MSC_VER
+    mem.allo_ = malloc;
+    mem.free_ = free;
+#else
+    mem.allo_ = freertos_heap4_allo;
+    mem.free_ = freertos_heap4_free;
+#endif
+    set_memory_allocater(mem);
 
 	if (IS_ENABLED(CONFIG_BT_SETTINGS)) {
 		err = bt_settings_init();
